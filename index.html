@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교인 통합 관리 시스템 | Church CRM Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+        }
+
+        body { 
+            font-family: 'Inter', 'Noto Sans KR', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+        }
+
+        .input-field { 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 1px solid #e2e8f0; 
+            height: 2.5rem;
+        }
+
+        textarea.input-field {
+            height: auto;
+            min-height: 60px;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .input-field:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); 
+            outline: none; 
+            background-color: white;
+        }
+
+        .section-card { 
+            background: white; 
+            border-radius: 1.25rem; 
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .mode-edit { 
+            border: 2px solid #6366f1; 
+            background-color: #fdfeff; 
+        }
+
+        .mode-warning { 
+            border: 2px solid #ef4444; 
+            background-color: #fff1f2; 
+        }
+
+        .btn-primary { 
+            transition: all 0.2s; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            height: 2.5rem;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .spinner { 
+            border: 2px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 50%; 
+            border-top: 2px solid white; 
+            width: 16px; 
+            height: 16px; 
+            animation: spin 0.8s linear infinite; 
+            display: none; 
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading .spinner { display: block; }
+        .loading .btn-text { display: none; }
+
+        #photo-preview { 
+            object-fit: cover; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.4s ease;
+        }
+
+        .alert-popup { 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            opacity: 0; 
+            transform: translateY(-20px) scale(0.95); 
+            pointer-events: none; 
+            z-index: 100; 
+        }
+
+        .alert-popup.show { 
+            opacity: 1; 
+            transform: translateY(0) scale(1); 
+            pointer-events: auto; 
+        }
+
+        .warning-pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .app-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(2px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.25rem;
+        }
+
+        .lock-badge {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased bg-slate-50">
+
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white">
+                    <i data-lucide="church" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-xl font-extrabold tracking-tight text-slate-900">교인 통합 관리</h1>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <input type="password" id="app-password" maxlength="4" class="w-20 h-8 px-2 text-center text-sm font-bold bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-300 placeholder:font-normal" placeholder="비밀번호" oninput="checkPassword(this)">
+                                <div id="lock-icon-container" class="absolute -right-2 -top-2 bg-rose-500 text-white p-1 rounded-full shadow-lg lock-badge">
+                                    <i data-lucide="lock" class="w-3 h-3"></i>
+                                </div>
+                            </div>
+                            <button id="sign-out-btn" onclick="signOut()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                로그아웃
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5">
+                        <!-- Church Title Updated: Size set to 15px and Black (text-slate-950) -->
+                        <span class="text-[15px] font-black text-slate-950 uppercase tracking-tight">시카고 언약장로교회</span>
+                        <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                            시스템 로딩 중
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full sm:w-auto text-right">
+                <p id="current-time" class="text-slate-500 text-[11px] font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
+            </div>
+        </header>
+
+        <!-- Notification -->
+        <div id="alert-container" class="fixed top-8 left-1/2 -translate-x-1/2 alert-popup">
+            <div id="alert-box" class="flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl border border-white bg-white/95 backdrop-blur-md">
+                <i id="alert-icon" data-lucide="info" class="w-5 h-5"></i>
+                <span id="alert-msg-popup"></span>
+            </div>
+        </div>
+
+        <!-- Master Control -->
+        <div id="main-control-section" class="relative section-card p-4 border-b-4 border-b-indigo-500 shadow-lg overflow-hidden">
+            <div id="lock-overlay" class="app-overlay">
+                <div class="text-slate-400 text-xs font-medium flex items-center gap-2">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    암호를 입력하여 시스템을 활성화하십시오 (1424)
+                </div>
+            </div>
+            <div id="duplicate-warning" class="hidden items-center gap-4 px-6 py-4 mb-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 warning-pulse">
+                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                <div class="text-sm">
+                    <p class="font-bold text-base" id="warning-msg"></p>
+                    <p class="opacity-80">이미 등록된 교인 번호입니다.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                    <input id="search" maxlength="5" class="w-full h-10 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-medium placeholder:text-slate-400" placeholder="교인 번호(최대 5자리) 또는 성명 검색...">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-bold shadow-md shadow-indigo-100 hover:bg-indigo-700">
+                        <span class="spinner"></span>
+                        <span class="btn-text">검색</span>
+                    </button>
+                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 px-4 rounded-xl font-bold hover:bg-indigo-100 transition-colors">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span class="text-sm">새교우 등록</span>
+                    </button>
+                    <button onclick="saveData()" id="save-btn" class="btn-primary bg-indigo-900 text-white px-6 rounded-xl font-bold shadow-lg hover:bg-indigo-950 disabled:bg-slate-300">
+                        <span class="spinner"></span>
+                        <span id="save-btn-label" class="btn-text flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            데이터 저장
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 opacity-40 transition-opacity duration-500" id="main-content-grid">
+            <!-- Profile -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="section-card p-6 text-center">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">프로필 사진</h3>
+                    <div class="relative group aspect-[3/4] bg-slate-50 rounded-2xl overflow-hidden border-2 border-dashed border-slate-200 transition-colors cursor-not-allowed photo-box">
+                        <img id="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='1'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E" alt="Profile">
+                        <div id="photo-overlay" class="absolute inset-0 bg-indigo-600/40 opacity-0 transition-all flex flex-col items-center justify-center backdrop-blur-[2px] hidden">
+                            <i data-lucide="upload-cloud" class="text-white w-8 h-8 mb-2"></i>
+                            <span class="text-white text-[10px] font-bold uppercase">사진 올리기</span>
+                        </div>
+                    </div>
+                    <input type="file" id="photo-input" class="hidden" accept="image/*" onchange="handlePhotoUpload(this)">
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="lg:col-span-9 space-y-6">
+                <div id="form-container" class="section-card p-6 sm:p-8 transition-all duration-300">
+                    <div class="space-y-6">
+                        <!-- Identifiers -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">교인 번호 <span class="text-rose-500">*</span></label>
+                                <input id="input-id" readonly maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-bold text-indigo-600 text-sm cursor-not-allowed uppercase" data-key="id" placeholder="00000">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">성명 <span class="text-rose-500">*</span></label>
+                                <input id="input-name" readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-bold text-sm cursor-not-allowed" data-key="name" placeholder="홍길동">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">영문 성함</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-medium cursor-not-allowed" data-key="engName" placeholder="Gildong Hong">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">직분</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-semibold text-slate-700 text-sm cursor-not-allowed" data-key="position" placeholder="성도, 집사 등 입력">
+                            </div>
+                        </div>
+
+                        <!-- Contact & Address -->
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            <div class="md:col-span-3 space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">연락처</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono text-sm us-phone-mask cursor-not-allowed" data-key="phone" placeholder="000-000-0000" maxlength="12">
+                            </div>
+                            <div class="md:col-span-3 space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">이메일</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm cursor-not-allowed" data-key="email" placeholder="example@church.com">
+                            </div>
+                            <div class="md:col-span-6 space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">상세 주소</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm cursor-not-allowed" data-key="address" placeholder="도로명 또는 지번 주소 입력">
+                            </div>
+                        </div>
+
+                        <!-- Row: Dates 1 -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-50">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">생년월일</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="birthDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">세례일</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="baptismDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">교회 등록일</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="registrationDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-rose-500 uppercase tracking-wider ml-1">해지일</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 date-mask font-mono text-sm cursor-not-allowed" data-key="terminationDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                        </div>
+
+                        <!-- Row: Ordination Dates -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">집사시작 일자</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="deaconDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">권사시작 일자</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="seniorDeaconessDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">장로시작 일자</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono text-sm cursor-not-allowed" data-key="elderDate" placeholder="MM-DD-YYYY" maxlength="10">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-rose-500 uppercase tracking-wider ml-1">해지 사유</label>
+                                <input readonly class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 text-sm cursor-not-allowed" data-key="terminationReason" placeholder="이사, 타교회 이전 등">
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="space-y-4 pt-2 border-t border-slate-50">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">가족 관계 및 비고</label>
+                                <textarea readonly rows="2" class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm leading-relaxed cursor-not-allowed" data-key="notes" placeholder="가족 구성원 등 핵심 정보를 기록하세요."></textarea>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">심방 및 기도 제목</label>
+                                <textarea readonly rows="2" class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm leading-relaxed cursor-not-allowed" data-key="extendedNotes" placeholder="상세한 상담 내용이나 기도 제목을 기록하세요."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjGRAF-EV38DepICzzQHyO4azA0Kf8RiDn3v9nUpOCyrTHtFG09BewZ5-Mcp6H9hYnxQ/exec";
+const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='1'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
+const APP_KEY = "1424";
+
+let memberCache = []; 
+let currentPhoto = '';
+let alertTimer = null;
+let appStatus = 'CREATE';
+let isUnlocked = false;
+
+function checkPassword(input) {
+    if (input.value === APP_KEY) {
+        unlockApp();
+    } else if (input.value.length === 4) {
+        input.value = '';
+        input.classList.add('ring-rose-500', 'bg-rose-50');
+        setTimeout(() => input.classList.remove('ring-rose-500', 'bg-rose-50'), 500);
+        showAlert('암호가 틀렸습니다.', 'error');
+    }
+}
+
+function unlockApp() {
+    isUnlocked = true;
+    document.getElementById('lock-overlay').classList.add('hidden');
+    document.getElementById('sign-out-btn').classList.remove('hidden');
+    document.getElementById('lock-icon-container').classList.replace('bg-rose-500', 'bg-emerald-500');
+    document.getElementById('lock-icon-container').innerHTML = '<i data-lucide="unlock" class="w-3 h-3"></i>';
+    document.getElementById('app-password').classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+    document.getElementById('app-password').disabled = true;
+    document.getElementById('main-content-grid').classList.remove('opacity-40');
+    
+    document.querySelectorAll('.input-field').forEach(el => {
+        el.removeAttribute('readonly');
+        el.classList.remove('cursor-not-allowed');
+    });
+    
+    const photoBox = document.querySelector('.photo-box');
+    photoBox.classList.remove('cursor-not-allowed');
+    photoBox.classList.add('cursor-pointer');
+    photoBox.setAttribute('onclick', "document.getElementById('photo-input').click()");
+    document.getElementById('photo-overlay').classList.remove('hidden');
+    document.getElementById('photo-overlay').classList.add('group-hover:opacity-100');
+
+    document.getElementById('input-id').addEventListener('input', liveValidate);
+    document.getElementById('input-name').addEventListener('input', liveValidate);
+
+    lucide.createIcons();
+    showAlert('시스템이 활성화되었습니다.', 'success');
+}
+
+function signOut() {
+    isUnlocked = false;
+    document.getElementById('lock-overlay').classList.remove('hidden');
+    document.getElementById('sign-out-btn').classList.add('hidden');
+    document.getElementById('lock-icon-container').classList.replace('bg-emerald-500', 'bg-rose-500');
+    document.getElementById('lock-icon-container').innerHTML = '<i data-lucide="lock" class="w-3 h-3"></i>';
+    
+    const pwInput = document.getElementById('app-password');
+    pwInput.value = '';
+    pwInput.disabled = false;
+    pwInput.className = "w-20 h-8 px-2 text-center text-sm font-bold bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-300 placeholder:font-normal";
+    
+    document.getElementById('main-content-grid').classList.add('opacity-40');
+    
+    document.querySelectorAll('.input-field').forEach(el => {
+        el.setAttribute('readonly', true);
+        el.classList.add('cursor-not-allowed');
+    });
+
+    const photoBox = document.querySelector('.photo-box');
+    photoBox.classList.add('cursor-not-allowed');
+    photoBox.classList.remove('cursor-pointer');
+    photoBox.removeAttribute('onclick');
+    document.getElementById('photo-overlay').classList.add('hidden');
+    
+    resetForm(false);
+    lucide.createIcons();
+    showAlert('시스템이 잠금 상태로 전환되었습니다.', 'info');
+}
+
+async function fetchDatabase() {
+    updateStatusBadge('syncing');
+    try {
+        const response = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+        memberCache = await response.json();
+        updateStatusBadge('online');
+    } catch (e) {
+        updateStatusBadge('offline');
+    }
+}
+
+function updateStatusBadge(state) {
+    const badge = document.getElementById('status-badge');
+    if(state === 'online') {
+        badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-tight";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 동기화 완료';
+    } else if(state === 'syncing') {
+        badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> 데이터 동기화 중';
+    } else {
+        badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-tight";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> 오프라인';
+    }
+}
+
+function liveValidate() {
+    if (!isUnlocked) return;
+    const idInput = document.getElementById('input-id');
+    const idVal = idInput.value.trim();
+    const nameVal = document.getElementById('input-name').value.trim();
+    const formCont = document.getElementById('form-container');
+    const saveBtn = document.getElementById('save-btn');
+    const saveBtnLabel = document.getElementById('save-btn-label');
+    const warningDiv = document.getElementById('duplicate-warning');
+
+    if (!idVal) {
+        formCont.classList.remove('mode-edit', 'mode-warning');
+        warningDiv.classList.add('hidden');
+        return;
+    }
+
+    const match = memberCache.find(m => String(m.id).toLowerCase() === idVal.toLowerCase());
+
+    if (match) {
+        if (match.name === nameVal || nameVal === "") {
+            appStatus = 'EDIT';
+            formCont.classList.add('mode-edit');
+            formCont.classList.remove('mode-warning');
+            warningDiv.classList.add('hidden');
+            saveBtnLabel.innerHTML = `<i data-lucide="user-check" class="w-4 h-4"></i> 데이터 저장`;
+            saveBtn.disabled = false;
+            if (nameVal === "" && document.querySelector('[data-key="address"]').value === "") fillFormData(match);
+        } else {
+            appStatus = 'WARNING';
+            formCont.classList.remove('mode-edit');
+            formCont.classList.add('mode-warning');
+            warningDiv.classList.remove('hidden');
+            warningDiv.classList.add('flex');
+            document.getElementById('warning-msg').innerText = `[${match.name}] 교인이 이 번호를 사용 중입니다.`;
+            saveBtnLabel.innerText = "저장 불가";
+            saveBtn.disabled = true;
+        }
+    } else {
+        appStatus = 'CREATE';
+        formCont.classList.remove('mode-edit', 'mode-warning');
+        warningDiv.classList.add('hidden');
+        saveBtnLabel.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> 데이터 저장`;
+        saveBtn.disabled = false;
+    }
+    lucide.createIcons();
+}
+
+function fillFormData(record) {
+    document.querySelectorAll('[data-key]').forEach(el => {
+        el.value = record[el.dataset.key] || "";
+    });
+    currentPhoto = record.photo || "";
+    document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
+}
+
+async function saveData() {
+    if (!isUnlocked || appStatus === 'WARNING') return;
+    const btn = document.getElementById('save-btn');
+    const formData = {};
+    document.querySelectorAll('[data-key]').forEach(el => formData[el.dataset.key] = el.value.trim());
+    formData.photo = currentPhoto;
+
+    if (!formData.id || !formData.name) {
+        showAlert('필수 항목을 입력해주세요.', 'error');
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        showAlert('데이터가 저장되었습니다.', 'success');
+        setTimeout(async () => {
+            await fetchDatabase();
+            resetForm(false);
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }, 1000);
+    } catch (e) {
+        showAlert('저장 중 오류가 발생했습니다.', 'error');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+async function searchData() {
+    if (!isUnlocked) return;
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    if (!q) { showAlert('검색어를 입력하세요.', 'error'); return; }
+    const btn = document.getElementById('search-btn');
+    btn.classList.add('loading');
+    const record = memberCache.find(x => String(x.id || "").toLowerCase() === q || String(x.name || "").toLowerCase().includes(q));
+    if (record) {
+        fillFormData(record);
+        liveValidate(); 
+        showAlert('교인 정보를 찾았습니다.', 'success');
+    } else {
+        showAlert('일치하는 정보가 없습니다.', 'error');
+    }
+    btn.classList.remove('loading');
+}
+
+function handlePhotoUpload(input) {
+    if (!isUnlocked) return;
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400;
+                const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                currentPhoto = canvas.toDataURL('image/jpeg', 0.85);
+                document.getElementById('photo-preview').src = currentPhoto;
+            };
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function resetForm(isManual = false) {
+    document.querySelectorAll('[data-key]').forEach(el => el.value = '');
+    document.getElementById('search').value = '';
+    document.getElementById('photo-preview').src = PLACEHOLDER_SVG;
+    document.getElementById('duplicate-warning').classList.add('hidden');
+    currentPhoto = '';
+    appStatus = 'CREATE';
+    const formCont = document.getElementById('form-container');
+    formCont.classList.remove('mode-edit', 'mode-warning');
+    document.getElementById('save-btn-label').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> 데이터 저장`;
+    lucide.createIcons();
+    if (isManual && isUnlocked) showAlert('신규 입력을 위해 폼이 초기화되었습니다.', 'success');
+}
+
+function showAlert(msg, type = 'success') {
+    const container = document.getElementById('alert-container');
+    const box = document.getElementById('alert-box');
+    const msgEl = document.getElementById('alert-msg-popup');
+    const iconEl = document.getElementById('alert-icon');
+    if (alertTimer) clearTimeout(alertTimer);
+    msgEl.innerText = msg;
+    box.className = `flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl border bg-white/95 backdrop-blur-md ${type === 'error' ? 'border-rose-100 text-rose-600' : type === 'info' ? 'border-slate-100 text-slate-600' : 'border-emerald-100 text-emerald-600'}`;
+    iconEl.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : type === 'info' ? 'shield-check' : 'check-circle');
+    lucide.createIcons();
+    container.classList.add('show');
+    alertTimer = setTimeout(() => container.classList.remove('show'), 3000);
+}
+
+document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('us-phone-mask')) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 3 && v.length <= 6) v = v.slice(0, 3) + '-' + v.slice(3);
+        else if (v.length > 6) v = v.slice(0, 3) + '-' + v.slice(3, 6) + '-' + v.slice(6, 10);
+        e.target.value = v;
+    }
+    if (e.target.classList.contains('date-mask')) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 2 && v.length <= 4) v = v.slice(0, 2) + '-' + v.slice(2);
+        else if (v.length > 4) v = v.slice(0, 2) + '-' + v.slice(2, 4) + '-' + v.slice(4, 8);
+        e.target.value = v;
+    }
+});
+
+window.onload = async () => { 
+    lucide.createIcons(); 
+    await fetchDatabase(); 
+    setInterval(() => { 
+        document.getElementById('current-time').innerText = new Date().toLocaleString('ko-KR', {
+            year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }); 
+    }, 1000);
+    document.getElementById('search').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchData(); });
+};
+</script>
+</body>
+</html>
