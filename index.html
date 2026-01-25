@@ -345,7 +345,7 @@
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjGRAF-EV38DepICzzQHyO4azA0Kf8RiDn3v9nUpOCyrTHtFG09BewZ5-Mcp6H9hYnxQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-N1Y8NaNVu1jiWMxIKQ7xoAQu_65_BKBrT9kZcgiBEN2vsJ52PBTVSVnzkNKQBN0Azw/exec";
 const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='1'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
 const APP_KEY = "1424";
 
@@ -354,6 +354,52 @@ let currentPhoto = '';
 let alertTimer = null;
 let appStatus = 'CREATE';
 let isUnlocked = false;
+
+/**
+ * Format Date YYYY-MM-DD (Spreadsheet) or ISO string to MM-DD-YYYY (UI)
+ */
+function formatToUI(dateStr) {
+    if (!dateStr || String(dateStr).trim() === "") return "";
+    
+    // 만약 ISO 형태나 이상한 형식으로 넘어올 경우 Date 객체로 파싱 시도
+    let d = new Date(dateStr);
+    
+    // 날짜 객체가 유효하지 않은 경우 원본 반환
+    if (isNaN(d.getTime())) {
+        // "YYYY-MM-DD" 혹은 "YYYY.MM.DD" 등 수동 처리 시도
+        const matches = String(dateStr).match(/(\d{4})[-\.]?(\d{2})[-\.]?(\d{2})/);
+        if (matches) {
+            return `${matches[2]}-${matches[3]}-${matches[1]}`;
+        }
+        return dateStr;
+    }
+    
+    // 유효한 날짜 객체인 경우 (자정 기준 시간 보정 없이 MM-DD-YYYY 추출)
+    // 스프레드시트에서 날짜만 가져올 때 시간대 오차가 발생할 수 있으므로 문자열 기반 파싱 선호
+    if (String(dateStr).indexOf('-') === 4) { // YYYY-MM-DD
+        const parts = String(dateStr).split('T')[0].split('-');
+        return `${parts[1]}-${parts[2]}-${parts[0]}`;
+    }
+
+    // 그 외 일반 Date 객체 활용 (getUTC 대신 로컬 값 사용 시 하루 밀림 방지를 위해 문자열 자르기 활용)
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}-${day}-${year}`;
+}
+
+/**
+ * Format Date MM-DD-YYYY (UI) to YYYY-MM-DD (Spreadsheet)
+ */
+function formatToData(dateStr) {
+    if (!dateStr || dateStr.length < 10) return dateStr;
+    // Handle MM-DD-YYYY
+    if (dateStr.indexOf('-') === 2) {
+        const parts = dateStr.split('-');
+        return `${parts[2]}-${parts[0]}-${parts[1]}`;
+    }
+    return dateStr;
+}
 
 function checkPassword(input) {
     if (input.value === APP_KEY) {
@@ -499,7 +545,12 @@ function liveValidate() {
 
 function fillFormData(record) {
     document.querySelectorAll('[data-key]').forEach(el => {
-        el.value = record[el.dataset.key] || "";
+        let val = record[el.dataset.key] || "";
+        // If it's a date field, format it to MM-DD-YYYY for UI
+        if (el.classList.contains('date-mask')) {
+            val = formatToUI(val);
+        }
+        el.value = val;
     });
     currentPhoto = record.photo || "";
     document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
@@ -509,7 +560,14 @@ async function saveData() {
     if (!isUnlocked || appStatus === 'WARNING') return;
     const btn = document.getElementById('save-btn');
     const formData = {};
-    document.querySelectorAll('[data-key]').forEach(el => formData[el.dataset.key] = el.value.trim());
+    document.querySelectorAll('[data-key]').forEach(el => {
+        let val = el.value.trim();
+        // If it's a date field, convert MM-DD-YYYY back to YYYY-MM-DD for database
+        if (el.classList.contains('date-mask')) {
+            val = formatToData(val);
+        }
+        formData[el.dataset.key] = val;
+    });
     formData.photo = currentPhoto;
 
     if (!formData.id || !formData.name) {
