@@ -24,15 +24,17 @@
         .input-field { 
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 1px solid #e2e8f0; 
-            height: 2.75rem; /* 터치 타겟 최적화 및 크기 확장 */
+            height: 2.75rem;
             font-weight: 700 !important; 
         }
 
+        /* 비고 칸 높이 조정 (두 줄 정도 보이게) */
         textarea.input-field {
             height: auto;
-            min-height: 80px;
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
+            min-height: 3.5rem; 
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            line-height: 1.4;
         }
 
         .input-field:focus { 
@@ -49,13 +51,9 @@
             border: 1px solid #f1f5f9;
         }
 
-        .mode-edit { 
-            border: 2px solid #6366f1; 
-            background-color: #fdfeff; 
-        }
-
+        /* 중복 경고 발생 시 스타일 */
         .mode-warning { 
-            border: 2px solid #ef4444; 
+            border: 2px solid #ef4444 !important; 
             background-color: #fff1f2; 
         }
 
@@ -197,11 +195,13 @@
                     암호를 입력하여 시스템을 활성화하십시오
                 </div>
             </div>
+            
+            <!-- 중복 경고 메시지 영역 -->
             <div id="duplicate-warning" class="hidden items-center gap-4 px-6 py-4 mb-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 warning-pulse">
                 <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
                 <div class="text-sm">
                     <p class="font-black text-base" id="warning-msg"></p>
-                    <p class="opacity-80 font-bold">이미 등록된 교인 번호입니다.</p>
+                    <p class="opacity-80 font-bold">이미 등록된 교인 번호입니다. 다른 번호를 입력해주세요.</p>
                 </div>
             </div>
 
@@ -210,23 +210,21 @@
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                     </div>
-                    <input id="search" maxlength="5" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호(최대 5자리) 또는 성명 검색...">
+                    <input id="search" maxlength="5" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명 검색 후 Enter">
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-black shadow-md shadow-indigo-100 hover:bg-indigo-700">
+                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-black shadow-md hover:bg-indigo-700">
                         <span class="spinner"></span>
                         <span class="btn-text">검색</span>
                     </button>
-                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 px-4 rounded-xl font-black hover:bg-indigo-100 transition-colors">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <!-- 아이콘 삭제됨 -->
+                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 px-6 rounded-xl font-black hover:bg-indigo-100 transition-colors">
                         <span class="text-sm">새교우 등록</span>
                     </button>
-                    <button onclick="saveData()" id="save-btn" class="btn-primary bg-indigo-900 text-white px-6 rounded-xl font-black shadow-lg hover:bg-indigo-950 disabled:bg-slate-300">
+                    <!-- 아이콘 삭제됨 -->
+                    <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white px-8 rounded-xl font-black shadow-lg hover:bg-indigo-950 disabled:bg-slate-300">
                         <span class="spinner"></span>
-                        <span id="save-btn-label" class="btn-text flex items-center gap-2">
-                            <i data-lucide="save" class="w-4 h-4"></i>
-                            데이터 저장
-                        </span>
+                        <span id="save-btn-label" class="btn-text">데이터 저장</span>
                     </button>
                 </div>
             </div>
@@ -256,20 +254,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">교인 번호 <span class="text-rose-500">*</span></label>
-                                <!-- ID 폰트 사이즈를 성명과 동일하게 text-sm으로 통일 및 font-black 적용 -->
-                                <input id="input-id" readonly maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-indigo-600 text-sm cursor-not-allowed uppercase" data-key="id" placeholder="00000">
+                                <input id="input-id" maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-indigo-600 text-sm uppercase" data-key="id" placeholder="00000" onfocus="clearWarning()">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">성명 <span class="text-rose-500">*</span></label>
-                                <input id="input-name" readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-sm cursor-not-allowed text-slate-900" data-key="name" placeholder="홍길동">
+                                <input id="input-name" class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-sm text-slate-900" data-key="name" placeholder="홍길동">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">영문 성함</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black cursor-not-allowed" data-key="engName" placeholder="Gildong Hong">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="engName" placeholder="Gildong Hong">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">직분</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-slate-700 text-sm cursor-not-allowed" data-key="position" placeholder="성도, 집사 등 입력">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-slate-700 text-sm" data-key="position" placeholder="성도, 집사 등 입력">
                             </div>
                         </div>
 
@@ -277,15 +274,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                             <div class="md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">연락처</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm us-phone-mask cursor-not-allowed" data-key="phone" placeholder="000-000-0000" maxlength="12">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm cursor-not-allowed" data-key="phone" placeholder="000-000-0000" maxlength="12">
                             </div>
                             <div class="md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">이메일</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black cursor-not-allowed" data-key="email" placeholder="example@church.com">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="email" placeholder="example@church.com">
                             </div>
                             <div class="md:col-span-6 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">상세 주소</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black cursor-not-allowed" data-key="address" placeholder="도로명 또는 지번 주소 입력">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="address" placeholder="도로명 또는 지번 주소 입력">
                             </div>
                         </div>
 
@@ -293,19 +290,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-50">
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">생년월일</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="birthDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="birthDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">세례일</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="baptismDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="baptismDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">교회 등록일</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="registrationDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="registrationDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지일</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="terminationDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 font-mono font-black text-sm" data-key="terminationDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                         </div>
 
@@ -313,19 +310,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">집사시작 일자</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="deaconDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="deaconDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">권사시작 일자</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="seniorDeaconessDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="seniorDeaconessDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">장로시작 일자</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-slate-50 date-mask font-mono font-black text-sm cursor-not-allowed" data-key="elderDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="elderDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지 사유</label>
-                                <input readonly class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 text-sm font-black cursor-not-allowed" data-key="terminationReason" placeholder="이사, 타교회 이전 등">
+                                <input class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 text-sm font-black" data-key="terminationReason" placeholder="이사, 타교회 이전 등">
                             </div>
                         </div>
 
@@ -333,11 +330,11 @@
                         <div class="space-y-4 pt-2 border-t border-slate-50">
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">가족 관계 및 비고</label>
-                                <textarea readonly class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed cursor-not-allowed" data-key="notes" placeholder="가족 구성원 등 핵심 정보를 기록하세요."></textarea>
+                                <textarea class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed" data-key="notes" placeholder="가족 구성원 등 핵심 정보를 기록하세요."></textarea>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">심방 및 기도 제목</label>
-                                <textarea readonly class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed cursor-not-allowed" data-key="extendedNotes" placeholder="상세한 상담 내용이나 기도 제목을 기록하세요."></textarea>
+                                <textarea class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed" data-key="extendedNotes" placeholder="상세한 상담 내용이나 기도 제목을 기록하세요."></textarea>
                             </div>
                         </div>
                     </div>
@@ -354,22 +351,13 @@ const APP_KEY = "1424";
 
 let memberCache = []; 
 let currentPhoto = '';
-let alertTimer = null;
-let appStatus = 'CREATE';
 let isUnlocked = false;
 
+// 날짜 포맷팅 관련 함수
 function formatToUI(dateStr) {
     if (!dateStr || String(dateStr).trim() === "") return "";
     let d = new Date(dateStr);
-    if (isNaN(d.getTime())) {
-        const matches = String(dateStr).match(/(\d{4})[-\.]?(\d{2})[-\.]?(\d{2})/);
-        if (matches) return `${matches[2]}-${matches[3]}-${matches[1]}`;
-        return dateStr;
-    }
-    if (String(dateStr).indexOf('-') === 4) {
-        const parts = String(dateStr).split('T')[0].split('-');
-        return `${parts[1]}-${parts[2]}-${parts[0]}`;
-    }
+    if (isNaN(d.getTime())) return dateStr;
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const year = d.getFullYear();
@@ -385,13 +373,12 @@ function formatToData(dateStr) {
     return dateStr;
 }
 
+// 비밀번호 확인 및 잠금 해제
 function checkPassword(input) {
     if (input.value === APP_KEY) {
         unlockApp();
     } else if (input.value.length === 4) {
         input.value = '';
-        input.classList.add('ring-rose-500', 'bg-rose-50');
-        setTimeout(() => input.classList.remove('ring-rose-500', 'bg-rose-50'), 500);
         showAlert('암호가 틀렸습니다.', 'error');
     }
 }
@@ -402,59 +389,28 @@ function unlockApp() {
     document.getElementById('sign-out-btn').classList.remove('hidden');
     document.getElementById('lock-icon-container').classList.replace('bg-rose-500', 'bg-emerald-500');
     document.getElementById('lock-icon-container').innerHTML = '<i data-lucide="unlock" class="w-3 h-3"></i>';
-    document.getElementById('app-password').classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
     document.getElementById('app-password').disabled = true;
     document.getElementById('main-content-grid').classList.remove('opacity-40');
     
-    document.querySelectorAll('.input-field').forEach(el => {
+    document.querySelectorAll('.input-field, textarea').forEach(el => {
         el.removeAttribute('readonly');
-        el.classList.remove('cursor-not-allowed');
     });
-    
+
     const photoBox = document.querySelector('.photo-box');
     photoBox.classList.remove('cursor-not-allowed');
-    photoBox.classList.add('cursor-pointer');
     photoBox.setAttribute('onclick', "document.getElementById('photo-input').click()");
     document.getElementById('photo-overlay').classList.remove('hidden');
-    document.getElementById('photo-overlay').classList.add('group-hover:opacity-100');
-
-    document.getElementById('input-id').addEventListener('input', liveValidate);
-    document.getElementById('input-name').addEventListener('input', liveValidate);
 
     lucide.createIcons();
+    fetchDatabase();
     showAlert('시스템이 활성화되었습니다.', 'success');
 }
 
 function signOut() {
-    isUnlocked = false;
-    document.getElementById('lock-overlay').classList.remove('hidden');
-    document.getElementById('sign-out-btn').classList.add('hidden');
-    document.getElementById('lock-icon-container').classList.replace('bg-emerald-500', 'bg-rose-500');
-    document.getElementById('lock-icon-container').innerHTML = '<i data-lucide="lock" class="w-3 h-3"></i>';
-    
-    const pwInput = document.getElementById('app-password');
-    pwInput.value = '';
-    pwInput.disabled = false;
-    pwInput.className = "w-20 h-8 px-2 text-center text-sm font-black bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-300 placeholder:font-normal";
-    
-    document.getElementById('main-content-grid').classList.add('opacity-40');
-    
-    document.querySelectorAll('.input-field').forEach(el => {
-        el.setAttribute('readonly', true);
-        el.classList.add('cursor-not-allowed');
-    });
-
-    const photoBox = document.querySelector('.photo-box');
-    photoBox.classList.add('cursor-not-allowed');
-    photoBox.classList.remove('cursor-pointer');
-    photoBox.removeAttribute('onclick');
-    document.getElementById('photo-overlay').classList.add('hidden');
-    
-    resetForm(false);
-    lucide.createIcons();
-    showAlert('시스템이 잠금 상태로 전환되었습니다.', 'info');
+    location.reload();
 }
 
+// 데이터베이스 연동
 async function fetchDatabase() {
     updateStatusBadge('syncing');
     try {
@@ -480,78 +436,62 @@ function updateStatusBadge(state) {
     }
 }
 
-function liveValidate() {
+// 저장 로직 (중복 확인 포함)
+async function handleSaveAction() {
     if (!isUnlocked) return;
+    
     const idInput = document.getElementById('input-id');
+    const nameInput = document.getElementById('input-name');
     const idVal = idInput.value.trim();
-    const nameVal = document.getElementById('input-name').value.trim();
-    const formCont = document.getElementById('form-container');
-    const saveBtn = document.getElementById('save-btn');
-    const saveBtnLabel = document.getElementById('save-btn-label');
-    const warningDiv = document.getElementById('duplicate-warning');
+    const nameVal = nameInput.value.trim();
 
-    if (!idVal) {
-        formCont.classList.remove('mode-edit', 'mode-warning');
-        warningDiv.classList.add('hidden');
+    if (!idVal || !nameVal) {
+        showAlert('교인 번호와 성명은 필수입니다.', 'error');
         return;
     }
 
-    const match = memberCache.find(m => String(m.id).toLowerCase() === idVal.toLowerCase());
-
-    if (match) {
-        if (match.name === nameVal || nameVal === "") {
-            appStatus = 'EDIT';
-            formCont.classList.add('mode-edit');
-            formCont.classList.remove('mode-warning');
-            warningDiv.classList.add('hidden');
-            saveBtnLabel.innerHTML = `<i data-lucide="user-check" class="w-4 h-4"></i> 데이터 저장`;
-            saveBtn.disabled = false;
-            if (nameVal === "" && document.querySelector('[data-key="address"]').value === "") fillFormData(match);
-        } else {
-            appStatus = 'WARNING';
-            formCont.classList.remove('mode-edit');
-            formCont.classList.add('mode-warning');
-            warningDiv.classList.remove('hidden');
-            warningDiv.classList.add('flex');
-            document.getElementById('warning-msg').innerText = `[${match.name}] 교인이 이 번호를 사용 중입니다.`;
-            saveBtnLabel.innerText = "저장 불가";
-            saveBtn.disabled = true;
-        }
-    } else {
-        appStatus = 'CREATE';
-        formCont.classList.remove('mode-edit', 'mode-warning');
-        warningDiv.classList.add('hidden');
-        saveBtnLabel.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> 데이터 저장`;
-        saveBtn.disabled = false;
+    // 중복 확인
+    const existing = memberCache.find(m => String(m.id).toLowerCase() === idVal.toLowerCase());
+    
+    // 신규 등록인데 번호가 겹치거나, 이름이 다른 경우 경고
+    if (existing && existing.name !== nameVal) {
+        showDuplicateWarning(`[${existing.name}] 교인이 이 번호를 사용 중입니다.`);
+        return;
     }
-    lucide.createIcons();
+
+    // 통과 시 실제 저장 진행
+    saveData();
 }
 
-function fillFormData(record) {
-    document.querySelectorAll('[data-key]').forEach(el => {
-        let val = record[el.dataset.key] || "";
-        if (el.classList.contains('date-mask')) val = formatToUI(val);
-        el.value = val;
-    });
-    currentPhoto = record.photo || "";
-    document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
+function showDuplicateWarning(msg) {
+    const warningDiv = document.getElementById('duplicate-warning');
+    const formCont = document.getElementById('form-container');
+    const msgEl = document.getElementById('warning-msg');
+    
+    msgEl.innerText = msg;
+    warningDiv.classList.remove('hidden');
+    warningDiv.classList.add('flex');
+    formCont.classList.add('mode-warning');
+    
+    document.getElementById('input-id').focus();
+    showAlert('번호 중복을 확인해주세요.', 'error');
+}
+
+function clearWarning() {
+    document.getElementById('duplicate-warning').classList.add('hidden');
+    document.getElementById('form-container').classList.remove('mode-warning');
 }
 
 async function saveData() {
-    if (!isUnlocked || appStatus === 'WARNING') return;
     const btn = document.getElementById('save-btn');
     const formData = {};
+    
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = el.value.trim();
-        if (el.classList.contains('date-mask')) val = formatToData(val);
+        if (el.dataset.key.includes('Date')) val = formatToData(val);
         formData[el.dataset.key] = val;
     });
     formData.photo = currentPhoto;
-
-    if (!formData.id || !formData.name) {
-        showAlert('필수 항목을 입력해주세요.', 'error');
-        return;
-    }
 
     btn.classList.add('loading');
     btn.disabled = true;
@@ -563,39 +503,65 @@ async function saveData() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
-        showAlert('데이터가 저장되었습니다.', 'success');
+        
+        showAlert('데이터가 성공적으로 저장되었습니다.', 'success');
+        
+        // 데이터 캐시 갱신 및 폼 리셋
         setTimeout(async () => {
             await fetchDatabase();
             resetForm(false);
             btn.classList.remove('loading');
             btn.disabled = false;
         }, 1000);
+        
     } catch (e) {
-        showAlert('저장 중 오류가 발생했습니다.', 'error');
+        showAlert('서버 통신 중 오류가 발생했습니다.', 'error');
         btn.classList.remove('loading');
         btn.disabled = false;
     }
 }
 
-async function searchData() {
+// 검색 기능
+function searchData() {
     if (!isUnlocked) return;
     const q = document.getElementById('search').value.trim().toLowerCase();
-    if (!q) { showAlert('검색어를 입력하세요.', 'error'); return; }
-    const btn = document.getElementById('search-btn');
-    btn.classList.add('loading');
-    const record = memberCache.find(x => String(x.id || "").toLowerCase() === q || String(x.name || "").toLowerCase().includes(q));
+    if (!q) return;
+
+    const record = memberCache.find(x => 
+        String(x.id || "").toLowerCase() === q || 
+        String(x.name || "").toLowerCase().includes(q)
+    );
+
     if (record) {
+        clearWarning();
         fillFormData(record);
-        liveValidate(); 
-        showAlert('교인 정보를 찾았습니다.', 'success');
+        showAlert('회원 정보를 불러왔습니다.', 'success');
     } else {
-        showAlert('일치하는 정보가 없습니다.', 'error');
+        showAlert('검색 결과가 없습니다.', 'error');
     }
-    btn.classList.remove('loading');
 }
 
+function fillFormData(record) {
+    document.querySelectorAll('[data-key]').forEach(el => {
+        let val = record[el.dataset.key] || "";
+        if (el.dataset.key.includes('Date')) val = formatToUI(val);
+        el.value = val;
+    });
+    currentPhoto = record.photo || "";
+    document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
+}
+
+function resetForm(isManual) {
+    document.querySelectorAll('[data-key]').forEach(el => el.value = "");
+    document.getElementById('search').value = "";
+    currentPhoto = "";
+    document.getElementById('photo-preview').src = PLACEHOLDER_SVG;
+    clearWarning();
+    if(isManual) showAlert('입력란이 초기화되었습니다.', 'info');
+}
+
+// 사진 업로드
 function handlePhotoUpload(input) {
-    if (!isUnlocked) return;
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -617,59 +583,48 @@ function handlePhotoUpload(input) {
     }
 }
 
-function resetForm(isManual = false) {
-    document.querySelectorAll('[data-key]').forEach(el => el.value = '');
-    document.getElementById('search').value = '';
-    document.getElementById('photo-preview').src = PLACEHOLDER_SVG;
-    document.getElementById('duplicate-warning').classList.add('hidden');
-    currentPhoto = '';
-    appStatus = 'CREATE';
-    const formCont = document.getElementById('form-container');
-    formCont.classList.remove('mode-edit', 'mode-warning');
-    document.getElementById('save-btn-label').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> 데이터 저장`;
+// 알림창 제어
+function showAlert(msg, type = 'info') {
+    const alertCont = document.getElementById('alert-container');
+    const alertBox = document.getElementById('alert-box');
+    const alertMsg = document.getElementById('alert-msg-popup');
+    const alertIcon = document.getElementById('alert-icon');
+
+    alertMsg.innerText = msg;
+    
+    if(type === 'success') {
+        alertBox.className = "flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black shadow-2xl border border-emerald-100 bg-emerald-50 text-emerald-700";
+        alertIcon.setAttribute('data-lucide', 'check-circle');
+    } else if(type === 'error') {
+        alertBox.className = "flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black shadow-2xl border border-rose-100 bg-rose-50 text-rose-700";
+        alertIcon.setAttribute('data-lucide', 'x-circle');
+    } else {
+        alertBox.className = "flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black shadow-2xl border border-slate-100 bg-white/95 backdrop-blur-md text-slate-700";
+        alertIcon.setAttribute('data-lucide', 'info');
+    }
+    
     lucide.createIcons();
-    if (isManual && isUnlocked) showAlert('신규 입력을 위해 폼이 초기화되었습니다.', 'success');
+    alertCont.classList.add('show');
+    setTimeout(() => alertCont.classList.remove('show'), 3000);
 }
 
-function showAlert(msg, type = 'success') {
-    const container = document.getElementById('alert-container');
-    const box = document.getElementById('alert-box');
-    const msgEl = document.getElementById('alert-msg-popup');
-    const iconEl = document.getElementById('alert-icon');
-    if (alertTimer) clearTimeout(alertTimer);
-    msgEl.innerText = msg;
-    box.className = `flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black shadow-2xl border bg-white/95 backdrop-blur-md ${type === 'error' ? 'border-rose-100 text-rose-600' : type === 'info' ? 'border-slate-100 text-slate-600' : 'border-emerald-100 text-emerald-600'}`;
-    iconEl.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : type === 'info' ? 'shield-check' : 'check-circle');
-    lucide.createIcons();
-    container.classList.add('show');
-    alertTimer = setTimeout(() => container.classList.remove('show'), 3000);
-}
-
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('us-phone-mask')) {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length > 3 && v.length <= 6) v = v.slice(0, 3) + '-' + v.slice(3);
-        else if (v.length > 6) v = v.slice(0, 3) + '-' + v.slice(3, 6) + '-' + v.slice(6, 10);
-        e.target.value = v;
-    }
-    if (e.target.classList.contains('date-mask')) {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length > 2 && v.length <= 4) v = v.slice(0, 2) + '-' + v.slice(2);
-        else if (v.length > 4) v = v.slice(0, 2) + '-' + v.slice(2, 4) + '-' + v.slice(4, 8);
-        e.target.value = v;
-    }
+// 엔터키 검색 지원
+document.getElementById('search').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchData();
 });
 
-window.onload = async () => { 
-    lucide.createIcons(); 
-    await fetchDatabase(); 
-    setInterval(() => { 
-        document.getElementById('current-time').innerText = new Date().toLocaleString('ko-KR', {
-            year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit'
-        }); 
-    }, 1000);
-    document.getElementById('search').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchData(); });
-};
+// 실시간 시계
+setInterval(() => {
+    const now = new Date();
+    document.getElementById('current-time').innerText = now.toLocaleString('ko-KR', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+}, 1000);
+
+// 초기 아이콘 로드
+lucide.createIcons();
 </script>
+
 </body>
 </html>
