@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>교인 통합 관리 시스템 | Church CRM Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.383.0/dist/umd/lucide.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
         
@@ -137,7 +137,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 
-        /* 저장 확인 모달 */
+        /* ── 저장 확인 모달 ── */
         #save-modal {
             position: fixed;
             inset: 0;
@@ -145,8 +145,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(6px);
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
@@ -157,75 +158,84 @@
         }
         #save-modal-box {
             background: white;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 25px 60px -10px rgba(0,0,0,0.3);
-            transform: scale(0.92) translateY(10px);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 1.75rem;
+            padding: 2.25rem 2rem 2rem;
+            width: calc(100% - 2rem);
+            max-width: 400px;
+            box-shadow: 0 32px 80px -12px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.04);
+            transform: scale(0.93) translateY(12px);
+            transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #save-modal.show #save-modal-box {
             transform: scale(1) translateY(0);
         }
 
-        /* PIN 입력 칸 */
-        .pin-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #e2e8f0;
-            transition: background 0.15s ease, transform 0.15s ease;
+        /* 암호 입력 필드 */
+        #modal-password-input {
+            width: 100%;
+            height: 3rem;
+            padding: 0 1rem;
+            border-radius: 0.875rem;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 0.5em;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
-        .pin-dot.filled {
-            background: #4f46e5;
-            transform: scale(1.15);
+        #modal-password-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+            background: white;
         }
-        .pin-dot.error {
-            background: #ef4444;
-            animation: shake 0.35s ease;
+        #modal-password-input.input-error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+            background: #fff1f2;
+            animation: shake-field 0.4s ease;
         }
-        @keyframes shake {
+        @keyframes shake-field {
             0%,100% { transform: translateX(0); }
-            20% { transform: translateX(-5px); }
-            40% { transform: translateX(5px); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
             60% { transform: translateX(-4px); }
             80% { transform: translateX(4px); }
         }
 
-        /* 키패드 버튼 */
-        .keypad-btn {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            border: 1.5px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 1.25rem;
+        /* 모달 버튼 */
+        .modal-btn {
+            height: 2.875rem;
+            border-radius: 0.875rem;
+            font-size: 0.875rem;
             font-weight: 900;
-            color: #1e293b;
             cursor: pointer;
-            transition: all 0.15s ease;
-            display: flex;
+            transition: all 0.18s ease;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            user-select: none;
+            gap: 0.4rem;
+            border: none;
+            outline: none;
         }
-        .keypad-btn:hover {
-            background: #eef2ff;
-            border-color: #a5b4fc;
-            color: #4f46e5;
+        .modal-btn:active { transform: scale(0.96); }
+        .modal-btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+            flex: 1;
         }
-        .keypad-btn:active {
-            transform: scale(0.9);
-            background: #e0e7ff;
+        .modal-btn-cancel:hover { background: #e2e8f0; color: #334155; }
+        .modal-btn-save {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            flex: 2;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.35);
         }
-        .keypad-btn.delete-btn {
-            background: #fff1f2;
-            border-color: #fecdd3;
-            color: #e11d48;
-        }
-        .keypad-btn.delete-btn:hover {
-            background: #ffe4e6;
+        .modal-btn-save:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.45);
         }
     </style>
 </head>
@@ -435,45 +445,50 @@
     </div>
 </div>
 
-        <!-- 저장 확인 PIN 모달 -->
+        <!-- 저장 확인 모달 -->
         <div id="save-modal">
             <div id="save-modal-box">
+
+                <!-- 아이콘 + 제목 -->
                 <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-2xl mb-3">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-2xl mb-3 ring-4 ring-indigo-50">
                         <i data-lucide="shield-check" class="w-7 h-7 text-indigo-600"></i>
                     </div>
-                    <h2 class="text-lg font-black text-slate-900">저장 확인</h2>
-                    <p class="text-[12px] font-bold text-slate-400 mt-1">저장 암호를 입력하세요</p>
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight">저장 확인</h2>
+                    <p class="text-[12px] font-semibold text-slate-400 mt-1">데이터를 저장하려면 암호가 필요합니다</p>
                 </div>
 
-                <!-- PIN 표시 점 -->
-                <div class="flex justify-center gap-4 mb-8" id="pin-dots">
-                    <div class="pin-dot" id="dot-0"></div>
-                    <div class="pin-dot" id="dot-1"></div>
-                    <div class="pin-dot" id="dot-2"></div>
-                    <div class="pin-dot" id="dot-3"></div>
+                <!-- 암호 레이블 + 입력 -->
+                <div class="mb-5">
+                    <label class="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                        암호를 입력하세요
+                    </label>
+                    <input
+                        type="password"
+                        id="modal-password-input"
+                        maxlength="10"
+                        autocomplete="off"
+                        placeholder="● ● ● ●"
+                        onkeydown="handleModalKey(event)"
+                    >
+                    <p id="modal-error-msg" class="hidden mt-2 ml-1 text-[11px] font-bold text-rose-500 flex items-center gap-1">
+                        <i data-lucide="alert-circle" class="w-3 h-3 inline"></i>
+                        암호가 올바르지 않습니다.
+                    </p>
                 </div>
 
-                <!-- 키패드 -->
-                <div class="grid grid-cols-3 gap-3 place-items-center mb-4">
-                    <button class="keypad-btn" onclick="pinInput('1')">1</button>
-                    <button class="keypad-btn" onclick="pinInput('2')">2</button>
-                    <button class="keypad-btn" onclick="pinInput('3')">3</button>
-                    <button class="keypad-btn" onclick="pinInput('4')">4</button>
-                    <button class="keypad-btn" onclick="pinInput('5')">5</button>
-                    <button class="keypad-btn" onclick="pinInput('6')">6</button>
-                    <button class="keypad-btn" onclick="pinInput('7')">7</button>
-                    <button class="keypad-btn" onclick="pinInput('8')">8</button>
-                    <button class="keypad-btn" onclick="pinInput('9')">9</button>
-                    <button class="keypad-btn" onclick="closeSaveModal()">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                <!-- 취소 / 저장 버튼 -->
+                <div class="flex gap-3 mt-6">
+                    <button class="modal-btn modal-btn-cancel" onclick="closeSaveModal()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        취소
                     </button>
-                    <button class="keypad-btn" onclick="pinInput('0')">0</button>
-                    <button class="keypad-btn delete-btn" onclick="pinDelete()">
-                        <i data-lucide="delete" class="w-5 h-5"></i>
+                    <button class="modal-btn modal-btn-save" onclick="checkSavePin()">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        저장하기
                     </button>
                 </div>
-                <p class="text-center text-[11px] font-bold text-slate-300">취소하려면 ✕ 버튼을 누르세요</p>
+
             </div>
         </div>
 
@@ -487,7 +502,6 @@ let memberCache = [];
 let currentPhoto = '';
 let isUnlocked = false;
 let isNewMode = false;   // 신규 등록 모드 여부
-let pinValue = '';       // 저장 PIN 입력값
 
 // 날짜 포맷팅 관련 함수 (시간대 버그 수정: parts로 직접 파싱)
 function formatToUI(dateStr) {
@@ -633,58 +647,47 @@ function clearWarning() {
     document.getElementById('form-container').classList.remove('mode-warning');
 }
 
-// ── 저장 PIN 모달 ──────────────────────────────────────────
+// ── 저장 확인 모달 ──────────────────────────────────────────
 function openSaveModal() {
-    pinValue = '';
-    updatePinDots();
+    const input = document.getElementById('modal-password-input');
+    const errMsg = document.getElementById('modal-error-msg');
+    input.value = '';
+    input.classList.remove('input-error');
+    errMsg.classList.add('hidden');
     document.getElementById('save-modal').classList.add('show');
     lucide.createIcons();
+    setTimeout(() => input.focus(), 100);
 }
 
 function closeSaveModal() {
-    pinValue = '';
-    updatePinDots();
     document.getElementById('save-modal').classList.remove('show');
+    document.getElementById('modal-password-input').value = '';
+    document.getElementById('modal-error-msg').classList.add('hidden');
 }
 
-function pinInput(digit) {
-    if (pinValue.length >= 4) return;
-    pinValue += digit;
-    updatePinDots();
-    if (pinValue.length === 4) {
-        setTimeout(checkSavePin, 120);
-    }
-}
-
-function pinDelete() {
-    pinValue = pinValue.slice(0, -1);
-    updatePinDots();
-}
-
-function updatePinDots() {
-    for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById(`dot-${i}`);
-        dot.classList.remove('filled', 'error');
-        if (i < pinValue.length) dot.classList.add('filled');
-    }
+function handleModalKey(e) {
+    if (e.key === 'Enter') checkSavePin();
+    if (e.key === 'Escape') closeSaveModal();
 }
 
 function checkSavePin() {
-    if (pinValue === SAVE_KEY) {
+    const input = document.getElementById('modal-password-input');
+    const errMsg = document.getElementById('modal-error-msg');
+    const val = input.value;
+
+    if (val === SAVE_KEY) {
         closeSaveModal();
         saveData();
     } else {
-        // 오류 애니메이션
-        for (let i = 0; i < 4; i++) {
-            const dot = document.getElementById(`dot-${i}`);
-            dot.classList.remove('filled');
-            dot.classList.add('error');
-        }
+        input.classList.add('input-error');
+        errMsg.classList.remove('hidden');
+        lucide.createIcons();
         showAlert('저장 암호가 틀렸습니다.', 'error');
         setTimeout(() => {
-            pinValue = '';
-            updatePinDots();
-        }, 600);
+            input.classList.remove('input-error');
+            input.value = '';
+            input.focus();
+        }, 700);
     }
 }
 // ────────────────────────────────────────────────────────────
@@ -824,16 +827,9 @@ document.getElementById('search').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchData();
 });
 
-// 저장 모달: ESC 닫기 + 배경 클릭 닫기 + 키보드 PIN 입력
+// 저장 모달: 배경 클릭으로 닫기
 document.getElementById('save-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('save-modal')) closeSaveModal();
-});
-document.addEventListener('keydown', (e) => {
-    const modal = document.getElementById('save-modal');
-    if (!modal.classList.contains('show')) return;
-    if (e.key === 'Escape') { closeSaveModal(); return; }
-    if (e.key === 'Backspace') { pinDelete(); return; }
-    if (/^[0-9]$/.test(e.key)) { pinInput(e.key); }
 });
 
 // 실시간 시계
