@@ -137,6 +137,110 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 
+        /* ── 새가족 명단 모달 ── */
+        #newmember-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #newmember-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #newmember-modal-box {
+            background: white;
+            border-radius: 1.75rem;
+            padding: 0;
+            width: calc(100% - 2rem);
+            max-width: 680px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 32px 80px -12px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.04);
+            transform: scale(0.93) translateY(12px);
+            transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        #newmember-modal.show #newmember-modal-box {
+            transform: scale(1) translateY(0);
+        }
+        #newmember-modal-header {
+            padding: 1.5rem 1.75rem 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        #newmember-filter-row {
+            padding: 1rem 1.75rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        #newmember-list {
+            overflow-y: auto;
+            flex: 1;
+            padding: 1rem 1.25rem;
+        }
+
+        /* 날짜 선택 select */
+        .nm-select {
+            height: 2.25rem;
+            padding: 0 0.625rem;
+            border-radius: 0.625rem;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .nm-select:focus { border-color: #6366f1; }
+
+        /* 결과 카드 */
+        .nm-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0.875rem;
+            border-radius: 1rem;
+            border: 1.5px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            margin-bottom: 0.5rem;
+            background: white;
+        }
+        .nm-card:hover {
+            border-color: #a5b4fc;
+            background: #eef2ff;
+            transform: translateX(3px);
+        }
+        .nm-card:active { transform: scale(0.98); }
+        .nm-photo {
+            width: 52px;
+            height: 52px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            background: #f1f5f9;
+            flex-shrink: 0;
+        }
+        .nm-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
         /* ── 저장 확인 모달 ── */
         #save-modal {
             position: fixed;
@@ -307,22 +411,24 @@
             </div>
 
             <div class="flex flex-col lg:flex-row gap-3">
-                <div class="relative flex-grow">
+                <div class="relative lg:w-64 flex-shrink-0">
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                     </div>
                     <input id="search" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명 검색 후 Enter">
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-wrap">
                     <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-black shadow-md hover:bg-indigo-700">
                         <span class="spinner"></span>
                         <span class="btn-text">검색</span>
                     </button>
-                    <!-- 아이콘 삭제됨 -->
+                    <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white px-5 rounded-xl font-black shadow-md hover:bg-emerald-600 transition-colors gap-1.5">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span class="text-sm">새가족 명단</span>
+                    </button>
                     <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 px-6 rounded-xl font-black hover:bg-indigo-100 transition-colors">
                         <span class="text-sm">새교우 등록</span>
                     </button>
-                    <!-- 아이콘 삭제됨 -->
                     <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white px-8 rounded-xl font-black shadow-lg hover:bg-indigo-950 disabled:bg-slate-300">
                         <span class="spinner"></span>
                         <span id="save-btn-label" class="btn-text">데이터 저장</span>
@@ -444,6 +550,58 @@
         </main>
     </div>
 </div>
+
+        <!-- 새가족 명단 모달 -->
+        <div id="newmember-modal">
+            <div id="newmember-modal-box">
+
+                <!-- 헤더 -->
+                <div id="newmember-modal-header">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-emerald-50 rounded-xl">
+                                <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 tracking-tight">새가족 명단</h2>
+                                <p class="text-[11px] font-semibold text-slate-400 mt-0.5">교회 등록일 기준으로 조회합니다</p>
+                            </div>
+                        </div>
+                        <button onclick="closeNewMemberModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-500">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 날짜 필터 -->
+                <div id="newmember-filter-row">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-[11px] font-black text-slate-500 uppercase tracking-wider">기간 선택</span>
+                        <select id="nm-from-year" class="nm-select"></select>
+                        <span class="text-slate-400 font-black text-sm">년</span>
+                        <select id="nm-from-month" class="nm-select"></select>
+                        <span class="text-slate-400 font-black text-sm">월 &nbsp;~</span>
+                        <select id="nm-to-year" class="nm-select"></select>
+                        <span class="text-slate-400 font-black text-sm">년</span>
+                        <select id="nm-to-month" class="nm-select"></select>
+                        <span class="text-slate-400 font-black text-sm">월</span>
+                        <button onclick="renderNewMemberList()" class="h-9 px-4 rounded-lg bg-emerald-500 text-white text-xs font-black hover:bg-emerald-600 transition-colors ml-1">
+                            조회
+                        </button>
+                        <span id="nm-count-badge" class="hidden ml-auto text-[11px] font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100"></span>
+                    </div>
+                </div>
+
+                <!-- 결과 목록 -->
+                <div id="newmember-list">
+                    <div class="nm-empty">
+                        <i data-lucide="calendar-search" class="w-10 h-10 mx-auto mb-3 text-slate-200"></i>
+                        <p>기간을 선택하고 조회 버튼을 누르세요</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
         <!-- 저장 확인 모달 -->
         <div id="save-modal">
@@ -797,6 +955,152 @@ function handlePhotoUpload(input) {
     }
 }
 
+// ── 새가족 명단 모달 ──────────────────────────────────────────
+function openNewMemberModal() {
+    if (!isUnlocked) return;
+    populateDateSelects();
+    renderNewMemberList();
+    document.getElementById('newmember-modal').classList.add('show');
+    lucide.createIcons();
+}
+
+function closeNewMemberModal() {
+    document.getElementById('newmember-modal').classList.remove('show');
+}
+
+function populateDateSelects() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+
+    const years = [];
+    for (let y = curYear; y >= curYear - 10; y--) years.push(y);
+
+    const months = Array.from({length: 12}, (_, i) => i + 1);
+
+    function fillSelect(id, options, selected) {
+        const el = document.getElementById(id);
+        if (el.options.length > 0) return; // 이미 채워진 경우 스킵
+        options.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.text = String(v).padStart(2, '0');
+            if (v === selected) opt.selected = true;
+            el.appendChild(opt);
+        });
+    }
+
+    // 기본값: 이번 달 기준 3개월 전 ~ 이번 달
+    const fromMonth = curMonth - 2 <= 0 ? curMonth + 10 : curMonth - 2;
+    const fromYear  = curMonth - 2 <= 0 ? curYear - 1 : curYear;
+
+    fillSelect('nm-from-year',  years,  fromYear);
+    fillSelect('nm-from-month', months, fromMonth);
+    fillSelect('nm-to-year',    years,  curYear);
+    fillSelect('nm-to-month',   months, curMonth);
+}
+
+function renderNewMemberList() {
+    const fromYear  = parseInt(document.getElementById('nm-from-year').value);
+    const fromMonth = parseInt(document.getElementById('nm-from-month').value);
+    const toYear    = parseInt(document.getElementById('nm-to-year').value);
+    const toMonth   = parseInt(document.getElementById('nm-to-month').value);
+
+    const from = fromYear * 100 + fromMonth; // e.g. 202401
+    const to   = toYear   * 100 + toMonth;
+
+    if (from > to) {
+        showAlert('시작 월이 종료 월보다 늦습니다.', 'error');
+        return;
+    }
+
+    // registrationDate가 있는 레코드만, 기간 내 필터
+    const results = memberCache.filter(m => {
+        const rd = String(m.registrationDate || "").trim();
+        if (!rd) return false; // 등록일 없으면 스킵
+
+        // 날짜 파싱: YYYY-MM-DD 또는 MM-DD-YYYY 모두 지원
+        let year, month;
+        const iso = rd.match(/^(\d{4})-(\d{2})/);
+        const mdy = rd.match(/^(\d{2})-(\d{2})-(\d{4})/);
+        if (iso) {
+            year  = parseInt(iso[1]);
+            month = parseInt(iso[2]);
+        } else if (mdy) {
+            year  = parseInt(mdy[3]);
+            month = parseInt(mdy[1]);
+        } else {
+            return false;
+        }
+
+        const ym = year * 100 + month;
+        return ym >= from && ym <= to;
+    });
+
+    // 등록일 오름차순 정렬
+    results.sort((a, b) => {
+        const getYM = rd => {
+            const iso = String(rd || "").match(/^(\d{4})-(\d{2})/);
+            const mdy = String(rd || "").match(/^(\d{2})-(\d{2})-(\d{4})/);
+            if (iso) return parseInt(iso[1]) * 10000 + parseInt(iso[2]) * 100;
+            if (mdy) return parseInt(mdy[3]) * 10000 + parseInt(mdy[1]) * 100;
+            return 0;
+        };
+        return getYM(a.registrationDate) - getYM(b.registrationDate);
+    });
+
+    const listEl    = document.getElementById('newmember-list');
+    const countBadge = document.getElementById('nm-count-badge');
+
+    if (results.length === 0) {
+        listEl.innerHTML = `
+            <div class="nm-empty">
+                <i data-lucide="user-x" class="w-10 h-10 mx-auto mb-3 text-slate-200"></i>
+                <p>해당 기간에 등록된 교인이 없습니다</p>
+            </div>`;
+        countBadge.classList.add('hidden');
+        lucide.createIcons();
+        return;
+    }
+
+    countBadge.textContent = `총 ${results.length}명`;
+    countBadge.classList.remove('hidden');
+
+    listEl.innerHTML = results.map(m => {
+        const photoSrc = m.photo || PLACEHOLDER_SVG;
+        const regDateUI = formatToUI(m.registrationDate) || m.registrationDate || '';
+        const positionTxt = m.position ? `<span class="text-[10px] font-bold text-indigo-400 ml-1">${m.position}</span>` : '';
+        return `
+            <div class="nm-card" onclick="selectNewMember(${JSON.stringify(m.id)})">
+                <img class="nm-photo" src="${photoSrc}" onerror="this.src='${PLACEHOLDER_SVG}'" alt="">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-sm font-black text-slate-900">${m.name || ''}</span>
+                        ${positionTxt}
+                        <span class="text-[10px] font-mono text-slate-300 ml-1">#${m.id || ''}</span>
+                    </div>
+                    ${m.engName ? `<div class="text-[11px] text-slate-400 font-semibold mt-0.5">${m.engName}</div>` : ''}
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">등록일</div>
+                    <div class="text-[12px] font-black text-emerald-600 font-mono">${regDateUI}</div>
+                </div>
+            </div>`;
+    }).join('');
+
+    lucide.createIcons();
+}
+
+function selectNewMember(id) {
+    const record = memberCache.find(m => String(m.id) === String(id));
+    if (!record) return;
+    closeNewMemberModal();
+    clearWarning();
+    fillFormData(record);
+    showAlert(`${record.name} 교인 정보를 불러왔습니다.`, 'success');
+}
+// ──────────────────────────────────────────────────────────────
+
 // 알림창 제어
 function showAlert(msg, type = 'info') {
     const alertCont = document.getElementById('alert-container');
@@ -830,6 +1134,11 @@ document.getElementById('search').addEventListener('keypress', (e) => {
 // 저장 모달: 배경 클릭으로 닫기
 document.getElementById('save-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('save-modal')) closeSaveModal();
+});
+
+// 새가족 모달: 배경 클릭으로 닫기
+document.getElementById('newmember-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('newmember-modal')) closeNewMemberModal();
 });
 
 // 실시간 시계
