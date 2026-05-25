@@ -136,6 +136,97 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        /* 저장 확인 모달 */
+        #save-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #save-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #save-modal-box {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 25px 60px -10px rgba(0,0,0,0.3);
+            transform: scale(0.92) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #save-modal.show #save-modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        /* PIN 입력 칸 */
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .pin-dot.filled {
+            background: #4f46e5;
+            transform: scale(1.15);
+        }
+        .pin-dot.error {
+            background: #ef4444;
+            animation: shake 0.35s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* 키패드 버튼 */
+        .keypad-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .keypad-btn:hover {
+            background: #eef2ff;
+            border-color: #a5b4fc;
+            color: #4f46e5;
+        }
+        .keypad-btn:active {
+            transform: scale(0.9);
+            background: #e0e7ff;
+        }
+        .keypad-btn.delete-btn {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #e11d48;
+        }
+        .keypad-btn.delete-btn:hover {
+            background: #ffe4e6;
+        }
     </style>
 </head>
 <body class="antialiased bg-slate-50 font-bold">
@@ -210,7 +301,7 @@
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                     </div>
-                    <input id="search" maxlength="5" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명 검색 후 Enter">
+                    <input id="search" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명 검색 후 Enter">
                 </div>
                 <div class="flex gap-2">
                     <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-black shadow-md hover:bg-indigo-700">
@@ -344,20 +435,72 @@
     </div>
 </div>
 
+        <!-- 저장 확인 PIN 모달 -->
+        <div id="save-modal">
+            <div id="save-modal-box">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-2xl mb-3">
+                        <i data-lucide="shield-check" class="w-7 h-7 text-indigo-600"></i>
+                    </div>
+                    <h2 class="text-lg font-black text-slate-900">저장 확인</h2>
+                    <p class="text-[12px] font-bold text-slate-400 mt-1">저장 암호를 입력하세요</p>
+                </div>
+
+                <!-- PIN 표시 점 -->
+                <div class="flex justify-center gap-4 mb-8" id="pin-dots">
+                    <div class="pin-dot" id="dot-0"></div>
+                    <div class="pin-dot" id="dot-1"></div>
+                    <div class="pin-dot" id="dot-2"></div>
+                    <div class="pin-dot" id="dot-3"></div>
+                </div>
+
+                <!-- 키패드 -->
+                <div class="grid grid-cols-3 gap-3 place-items-center mb-4">
+                    <button class="keypad-btn" onclick="pinInput('1')">1</button>
+                    <button class="keypad-btn" onclick="pinInput('2')">2</button>
+                    <button class="keypad-btn" onclick="pinInput('3')">3</button>
+                    <button class="keypad-btn" onclick="pinInput('4')">4</button>
+                    <button class="keypad-btn" onclick="pinInput('5')">5</button>
+                    <button class="keypad-btn" onclick="pinInput('6')">6</button>
+                    <button class="keypad-btn" onclick="pinInput('7')">7</button>
+                    <button class="keypad-btn" onclick="pinInput('8')">8</button>
+                    <button class="keypad-btn" onclick="pinInput('9')">9</button>
+                    <button class="keypad-btn" onclick="closeSaveModal()">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                    <button class="keypad-btn" onclick="pinInput('0')">0</button>
+                    <button class="keypad-btn delete-btn" onclick="pinDelete()">
+                        <i data-lucide="delete" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <p class="text-center text-[11px] font-bold text-slate-300">취소하려면 ✕ 버튼을 누르세요</p>
+            </div>
+        </div>
+
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-N1Y8NaNVu1jiWMxIKQ7xoAQu_65_BKBrT9kZcgiBEN2vsJ52PBTVSVnzkNKQBN0Azw/exec";
 const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='1'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-const APP_KEY = "1424";
+const APP_KEY = "1424";   // 시스템 잠금 해제 암호
+const SAVE_KEY = "4241";  // 데이터 저장 확인 암호
 
 let memberCache = []; 
 let currentPhoto = '';
 let isUnlocked = false;
+let isNewMode = false;   // 신규 등록 모드 여부
+let pinValue = '';       // 저장 PIN 입력값
 
-// 날짜 포맷팅 관련 함수
+// 날짜 포맷팅 관련 함수 (시간대 버그 수정: parts로 직접 파싱)
 function formatToUI(dateStr) {
     if (!dateStr || String(dateStr).trim() === "") return "";
-    let d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
+    const s = String(dateStr).trim();
+    // YYYY-MM-DD 형식이면 직접 파싱 (UTC 오차 방지)
+    const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+        return `${isoMatch[2]}-${isoMatch[3]}-${isoMatch[1]}`;
+    }
+    // 기타 형식은 Date로 파싱 시도
+    let d = new Date(s);
+    if (isNaN(d.getTime())) return s;
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const year = d.getFullYear();
@@ -436,7 +579,7 @@ function updateStatusBadge(state) {
     }
 }
 
-// 저장 로직 (중복 확인 포함)
+// 저장 로직 (중복 확인 포함 + 신규/수정 모드 분리)
 async function handleSaveAction() {
     if (!isUnlocked) return;
     
@@ -450,17 +593,25 @@ async function handleSaveAction() {
         return;
     }
 
-    // 중복 확인
+    // 중복 확인: 동일 ID를 가진 기존 레코드 검색
     const existing = memberCache.find(m => String(m.id).toLowerCase() === idVal.toLowerCase());
     
-    // 신규 등록인데 번호가 겹치거나, 이름이 다른 경우 경고
-    if (existing && existing.name !== nameVal) {
-        showDuplicateWarning(`[${existing.name}] 교인이 이 번호를 사용 중입니다.`);
-        return;
+    if (isNewMode) {
+        // 신규 등록 모드: ID가 이미 존재하면 무조건 차단
+        if (existing) {
+            showDuplicateWarning(`[${existing.name}] 교인이 이 번호를 사용 중입니다.`);
+            return;
+        }
+    } else {
+        // 수정 모드: 다른 사람의 ID와 겹치는 경우만 차단
+        if (existing && existing.name !== nameVal) {
+            showDuplicateWarning(`[${existing.name}] 교인이 이 번호를 사용 중입니다.`);
+            return;
+        }
     }
 
-    // 통과 시 실제 저장 진행
-    saveData();
+    // 유효성 통과 → 저장 PIN 모달 열기
+    openSaveModal();
 }
 
 function showDuplicateWarning(msg) {
@@ -482,6 +633,62 @@ function clearWarning() {
     document.getElementById('form-container').classList.remove('mode-warning');
 }
 
+// ── 저장 PIN 모달 ──────────────────────────────────────────
+function openSaveModal() {
+    pinValue = '';
+    updatePinDots();
+    document.getElementById('save-modal').classList.add('show');
+    lucide.createIcons();
+}
+
+function closeSaveModal() {
+    pinValue = '';
+    updatePinDots();
+    document.getElementById('save-modal').classList.remove('show');
+}
+
+function pinInput(digit) {
+    if (pinValue.length >= 4) return;
+    pinValue += digit;
+    updatePinDots();
+    if (pinValue.length === 4) {
+        setTimeout(checkSavePin, 120);
+    }
+}
+
+function pinDelete() {
+    pinValue = pinValue.slice(0, -1);
+    updatePinDots();
+}
+
+function updatePinDots() {
+    for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.remove('filled', 'error');
+        if (i < pinValue.length) dot.classList.add('filled');
+    }
+}
+
+function checkSavePin() {
+    if (pinValue === SAVE_KEY) {
+        closeSaveModal();
+        saveData();
+    } else {
+        // 오류 애니메이션
+        for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById(`dot-${i}`);
+            dot.classList.remove('filled');
+            dot.classList.add('error');
+        }
+        showAlert('저장 암호가 틀렸습니다.', 'error');
+        setTimeout(() => {
+            pinValue = '';
+            updatePinDots();
+        }, 600);
+    }
+}
+// ────────────────────────────────────────────────────────────
+
 async function saveData() {
     const btn = document.getElementById('save-btn');
     const formData = {};
@@ -499,17 +706,19 @@ async function saveData() {
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
+            mode: 'no-cors', // Apps Script CORS 정책상 no-cors 유지 (opaque response)
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
         
         showAlert('데이터가 성공적으로 저장되었습니다.', 'success');
+        isNewMode = false; // 저장 후 수정 모드로 전환
         
         // 데이터 캐시 갱신 및 폼 리셋
         setTimeout(async () => {
             await fetchDatabase();
             resetForm(false);
+            isNewMode = false;
             btn.classList.remove('loading');
             btn.disabled = false;
         }, 1000);
@@ -549,6 +758,7 @@ function fillFormData(record) {
     });
     currentPhoto = record.photo || "";
     document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
+    isNewMode = false; // 검색 후 불러오면 수정 모드
 }
 
 function resetForm(isManual) {
@@ -557,7 +767,8 @@ function resetForm(isManual) {
     currentPhoto = "";
     document.getElementById('photo-preview').src = PLACEHOLDER_SVG;
     clearWarning();
-    if(isManual) showAlert('입력란이 초기화되었습니다.', 'info');
+    isNewMode = true; // 새교우 등록 모드 설정
+    if(isManual) showAlert('입력란이 초기화되었습니다. 신규 등록 모드입니다.', 'info');
 }
 
 // 사진 업로드
@@ -611,6 +822,18 @@ function showAlert(msg, type = 'info') {
 // 엔터키 검색 지원
 document.getElementById('search').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchData();
+});
+
+// 저장 모달: ESC 닫기 + 배경 클릭 닫기 + 키보드 PIN 입력
+document.getElementById('save-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('save-modal')) closeSaveModal();
+});
+document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('save-modal');
+    if (!modal.classList.contains('show')) return;
+    if (e.key === 'Escape') { closeSaveModal(); return; }
+    if (e.key === 'Backspace') { pinDelete(); return; }
+    if (/^[0-9]$/.test(e.key)) { pinInput(e.key); }
 });
 
 // 실시간 시계
