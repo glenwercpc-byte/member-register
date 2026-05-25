@@ -1066,12 +1066,15 @@ function renderNewMemberList() {
     countBadge.textContent = `총 ${results.length}명`;
     countBadge.classList.remove('hidden');
 
-    listEl.innerHTML = results.map(m => {
+    // 전역 변수에 결과 저장 (인덱스로 안전하게 참조)
+    window._nmResults = results;
+
+    listEl.innerHTML = results.map((m, idx) => {
         const photoSrc = m.photo || PLACEHOLDER_SVG;
         const regDateUI = formatToUI(m.registrationDate) || m.registrationDate || '';
         const positionTxt = m.position ? `<span class="text-[10px] font-bold text-indigo-400 ml-1">${m.position}</span>` : '';
         return `
-            <div class="nm-card" onclick="selectNewMember(${JSON.stringify(m.id)})">
+            <div class="nm-card" onclick="selectNewMember(${idx})">
                 <img class="nm-photo" src="${photoSrc}" onerror="this.src='${PLACEHOLDER_SVG}'" alt="">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1 flex-wrap">
@@ -1091,9 +1094,10 @@ function renderNewMemberList() {
     lucide.createIcons();
 }
 
-function selectNewMember(id) {
-    const record = memberCache.find(m => String(m.id) === String(id));
-    if (!record) return;
+function selectNewMember(idx) {
+    const results = window._nmResults;
+    if (!results || idx < 0 || idx >= results.length) return;
+    const record = results[idx];
     closeNewMemberModal();
     clearWarning();
     fillFormData(record);
