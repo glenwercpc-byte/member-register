@@ -300,6 +300,7 @@
         .badge-집사  { background:#eff6ff; color:#3b82f6; }
         .badge-권사  { background:#fdf4ff; color:#a855f7; }
         .badge-장로  { background:#fff7ed; color:#f97316; }
+        .badge-교회스텝 { background:#f0fdf4; color:#16a34a; }
 
         /* ── 저장 확인 모달 ── */
         #save-modal {
@@ -699,6 +700,7 @@
                         <button class="pos-tab" onclick="setPositionTab(this,'집사')">집사</button>
                         <button class="pos-tab" onclick="setPositionTab(this,'권사')">권사</button>
                         <button class="pos-tab" onclick="setPositionTab(this,'장로')">장로</button>
+                        <button class="pos-tab" onclick="setPositionTab(this,'교회스텝')">교회 스텝</button>
                         <span id="pos-count-badge" class="hidden ml-auto text-[11px] font-black px-3 py-1 rounded-full bg-violet-50 text-violet-600 border border-violet-100"></span>
                     </div>
                 </div>
@@ -986,10 +988,15 @@ async function saveData() {
         showAlert('데이터가 성공적으로 저장되었습니다.', 'success');
         isNewMode = false; // 저장 후 수정 모드로 전환
         
-        // 데이터 캐시 갱신 및 폼 리셋
+        // 캐시 갱신 후 현재 데이터를 폼에 다시 채워 그대로 보여줌
         setTimeout(async () => {
             await fetchDatabase();
-            resetForm(false);
+            // 저장한 id로 캐시에서 최신 레코드를 찾아 폼을 갱신
+            const savedId = formData.id;
+            if (savedId) {
+                const fresh = memberCache.find(m => String(m.id) === String(savedId));
+                if (fresh) fillFormData(fresh);
+            }
             isNewMode = false;
             btn.classList.remove('loading');
             btn.disabled = false;
@@ -1070,9 +1077,11 @@ function handlePhotoUpload(input) {
 let _currentPositionTab = '성도';
 
 // 직분 분류 헬퍼: 빈 칸이면 '성도'
+const STAFF_TITLES = ['담임목사','부목사','전도사','간사'];
 function classifyPosition(pos) {
     const p = String(pos || '').trim();
     if (!p) return '성도';
+    if (STAFF_TITLES.some(t => p.includes(t))) return '교회스텝';
     if (p.includes('장로')) return '장로';
     if (p.includes('권사')) return '권사';
     if (p.includes('집사')) return '집사';
@@ -1105,14 +1114,26 @@ function setPositionTab(btn, posName) {
 function renderPositionList(posName) {
     const results = memberCache.filter(m => classifyPosition(m.position) === posName);
 
-    // 이름 가나다 순 정렬
-    results.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ko'));
+    // 교회스텝: 담임목사→부목사→전도사→간사 순, 나머지는 가나다순
+    if (posName === '교회스텝') {
+        const ORDER = ['담임목사','부목사','전도사','간사'];
+        results.sort((a, b) => {
+            const ai = ORDER.findIndex(t => String(a.position||'').includes(t));
+            const bi = ORDER.findIndex(t => String(b.position||'').includes(t));
+            const an = ai === -1 ? 99 : ai;
+            const bn = bi === -1 ? 99 : bi;
+            if (an !== bn) return an - bn;
+            return String(a.name||'').localeCompare(String(b.name||''), 'ko');
+        });
+    } else {
+        results.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ko'));
+    }
 
     const listEl     = document.getElementById('position-list');
     const countBadge = document.getElementById('pos-count-badge');
 
     // 배지 색상 맵
-    const badgeClass = { '성도':'badge-성도', '집사':'badge-집사', '권사':'badge-권사', '장로':'badge-장로' };
+    const badgeClass = { '성도':'badge-성도', '집사':'badge-집사', '권사':'badge-권사', '장로':'badge-장로', '교회스텝':'badge-교회스텝' };
 
     if (results.length === 0) {
         listEl.innerHTML = `
