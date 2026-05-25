@@ -417,11 +417,13 @@
                     </div>
                     <input id="search" class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명 검색 후 Enter">
                 </div>
-                <div class="flex gap-2 flex-wrap">
+                <div class="flex gap-2 flex-shrink-0">
                     <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-6 rounded-xl font-black shadow-md hover:bg-indigo-700">
                         <span class="spinner"></span>
                         <span class="btn-text">검색</span>
                     </button>
+                </div>
+                <div class="flex gap-2 ml-auto flex-shrink-0">
                     <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white px-5 rounded-xl font-black shadow-md hover:bg-emerald-600 transition-colors gap-1.5">
                         <i data-lucide="users" class="w-4 h-4"></i>
                         <span class="text-sm">새가족 명단</span>
