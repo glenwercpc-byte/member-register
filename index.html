@@ -969,7 +969,11 @@ async function saveData() {
     
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = el.value.trim();
-        if (el.dataset.key.includes('Date')) val = formatToData(val);
+        if (el.dataset.key === 'cellGroup') {
+            val = val.replace(/\D/g, '').slice(0, 4);
+        } else if (el.dataset.key.includes('Date')) {
+            val = formatToData(val);
+        }
         formData[el.dataset.key] = val;
     });
     formData.photo = currentPhoto;
@@ -1032,8 +1036,16 @@ function searchData() {
 function fillFormData(record) {
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = record[el.dataset.key] || "";
-        if (el.dataset.key.includes('Date')) val = formatToUI(val);
-        el.value = val;
+        if (el.dataset.key === 'cellGroup') {
+            // 구글 시트가 숫자를 날짜로 변환하는 경우 대비: 숫자만 추출
+            const raw = String(val);
+            const nums = raw.replace(/\D/g, '');
+            el.value = nums.slice(0, 4);
+        } else if (el.dataset.key.includes('Date')) {
+            el.value = formatToUI(val);
+        } else {
+            el.value = val;
+        }
     });
     currentPhoto = record.photo || "";
     document.getElementById('photo-preview').src = currentPhoto || PLACEHOLDER_SVG;
