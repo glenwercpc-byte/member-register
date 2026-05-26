@@ -1114,7 +1114,7 @@ function setPositionTab(btn, posName) {
 function renderPositionList(posName) {
     const results = memberCache.filter(m => classifyPosition(m.position) === posName);
 
-    // 교회스텝: 담임목사→부목사→전도사→간사 순, 나머지는 가나다순
+    // 교회스텝: 담임목사→부목사→목사→전도사→간사 순 / 나머지: 가나다순
     if (posName === '교회스텝') {
         const ORDER = ['담임목사','부목사','목사','전도사','간사'];
         results.sort((a, b) => {
@@ -1150,7 +1150,7 @@ function renderPositionList(posName) {
     countBadge.classList.remove('hidden');
 
     window._posResults = results;
-
+    listEl.scrollTop = 0;
     listEl.innerHTML = results.map((m, idx) => {
         const photoSrc    = m.photo || PLACEHOLDER_SVG;
         const regDateUI   = formatToUI(m.registrationDate) || m.registrationDate || '—';
