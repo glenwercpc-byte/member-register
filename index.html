@@ -1078,7 +1078,7 @@ function handlePhotoUpload(input) {
 let _currentPositionTab = '성도';
 
 // 직분 분류 헬퍼: 빈 칸이면 '성도'
-const STAFF_TITLES = ['담임목사','부목사','목사','전도사','간사'];
+const STAFF_TITLES = ['담임목사','부목사','전도사','간사'];
 function classifyPosition(pos) {
     const p = String(pos || '').trim();
     if (!p) return '성도';
@@ -1117,7 +1117,7 @@ function renderPositionList(posName) {
 
     // 교회스텝: 담임목사→부목사→전도사→간사 순, 나머지는 가나다순
     if (posName === '교회스텝') {
-        const ORDER = ['담임목사','부목사','목사','전도사','간사'];
+        const ORDER = ['담임목사','부목사','전도사','간사'];
         results.sort((a, b) => {
             const ai = ORDER.findIndex(t => String(a.position||'').includes(t));
             const bi = ORDER.findIndex(t => String(b.position||'').includes(t));
