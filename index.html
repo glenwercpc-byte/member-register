@@ -583,11 +583,11 @@
                         <!-- Row: Ordination Dates -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="space-y-1.5">
-                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">집사시작 일자</label>
-                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="deaconDate" placeholder="MM-DD-YYYY" maxlength="10">
+                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">소속 샘터</label>
+                                <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="deaconDate" placeholder="000" maxlength="3" pattern="\d{1,3}" inputmode="numeric">
                             </div>
                             <div class="space-y-1.5">
-                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">권사시작 일자</label>
+                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">집사, 권사시작 일자</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="seniorDeaconessDate" placeholder="MM-DD-YYYY" maxlength="10">
                             </div>
                             <div class="space-y-1.5">
@@ -969,7 +969,7 @@ async function saveData() {
     
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = el.value.trim();
-        if (el.dataset.key.includes('Date')) val = formatToData(val);
+        if (el.dataset.key.includes('Date') && el.dataset.key !== 'deaconDate') val = formatToData(val);
         formData[el.dataset.key] = val;
     });
     formData.photo = currentPhoto;
@@ -1032,7 +1032,7 @@ function searchData() {
 function fillFormData(record) {
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = record[el.dataset.key] || "";
-        if (el.dataset.key.includes('Date')) val = formatToUI(val);
+        if (el.dataset.key.includes('Date') && el.dataset.key !== 'deaconDate') val = formatToUI(val);
         el.value = val;
     });
     currentPhoto = record.photo || "";
