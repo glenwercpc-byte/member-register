@@ -471,38 +471,57 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <!-- 1행: 검색칸 + 검색 + 직분자 명단 -->
-                <div class="flex gap-2 items-center">
-                    <div class="relative flex-1 min-w-0">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
-                        </div>
-                        <input id="search" class="w-full h-11 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호 또는 성명">
+            <!-- 모바일: 2행 / 데스크탑: 1행 -->
+            <div class="flex flex-col lg:flex-row gap-2 lg:gap-3 lg:items-center">
+
+                <!-- 검색칸 -->
+                <div class="relative flex-shrink-0 lg:w-64 w-auto">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                     </div>
-                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0" style="padding:0 1rem;">
+                    <input id="search" class="w-full h-11 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="교인 번호 또는 성명">
+                </div>
+
+                <!-- 모바일 1행: 검색 + 직분자 명단 / 데스크탑: 검색만 -->
+                <div class="flex gap-2 items-center lg:contents">
+                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0 px-5">
                         <span class="spinner"></span>
                         <span class="btn-text">검색</span>
                     </button>
-                    <button onclick="openPositionModal()" class="btn-primary bg-violet-500 text-white rounded-xl font-black shadow-md hover:bg-violet-600 transition-colors whitespace-nowrap flex-shrink-0" style="padding:0 0.875rem; gap:0.375rem;">
+                    <!-- 직분자 명단: 모바일 1행 오른쪽 끝 / 데스크탑 ml-auto -->
+                    <button onclick="openPositionModal()" class="btn-primary bg-violet-500 text-white rounded-xl font-black shadow-md hover:bg-violet-600 transition-colors whitespace-nowrap flex-shrink-0 lg:ml-auto" style="padding:0 0.875rem; gap:0.375rem;">
                         <i data-lucide="award" class="w-4 h-4 flex-shrink-0"></i>
                         <span class="text-sm">직분자 명단</span>
                     </button>
-                </div>
-                <!-- 2행: 새가족 명단 + 새교우 등록 + 데이터 저장 -->
-                <div class="flex gap-2 items-center">
-                    <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white rounded-xl font-black shadow-md hover:bg-emerald-600 transition-colors whitespace-nowrap flex-1" style="padding:0 0.875rem; gap:0.375rem;">
+                    <!-- 나머지 버튼: 데스크탑에서만 이 줄에 표시 -->
+                    <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white rounded-xl font-black shadow-md hover:bg-emerald-600 transition-colors whitespace-nowrap flex-shrink-0 hidden lg:inline-flex" style="padding:0 0.875rem; gap:0.375rem;">
                         <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
                         <span class="text-sm">새가족 명단</span>
                     </button>
-                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl font-black hover:bg-indigo-100 transition-colors whitespace-nowrap flex-1" style="padding:0 1rem;">
+                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl font-black hover:bg-indigo-100 transition-colors whitespace-nowrap flex-shrink-0 hidden lg:inline-flex px-5">
                         <span class="text-sm">새교우 등록</span>
                     </button>
-                    <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap flex-1" style="padding:0 1rem;">
+                    <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap flex-shrink-0 hidden lg:inline-flex px-6">
                         <span class="spinner"></span>
                         <span id="save-btn-label" class="btn-text">데이터 저장</span>
                     </button>
                 </div>
+
+                <!-- 모바일 2행: 새가족 명단 + 새교우 등록 + 데이터 저장 -->
+                <div class="flex gap-2 items-center lg:hidden">
+                    <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white rounded-xl font-black shadow-md hover:bg-emerald-600 transition-colors whitespace-nowrap flex-1" style="padding:0 0.75rem; gap:0.375rem;">
+                        <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="text-sm">새가족 명단</span>
+                    </button>
+                    <button onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl font-black hover:bg-indigo-100 transition-colors whitespace-nowrap flex-1" style="padding:0 0.75rem;">
+                        <span class="text-sm">새교우 등록</span>
+                    </button>
+                    <button onclick="handleSaveAction()" class="btn-primary bg-indigo-900 text-white rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap flex-1" style="padding:0 0.75rem;">
+                        <span class="spinner"></span>
+                        <span class="btn-text">데이터 저장</span>
+                    </button>
+                </div>
+
             </div>
             </div>
         </div>
