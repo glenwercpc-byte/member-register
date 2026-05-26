@@ -1152,12 +1152,22 @@ function renderPositionList(posName) {
     window._posResults = results;
 
     listEl.innerHTML = results.map((m, idx) => {
-        const photoSrc   = m.photo || PLACEHOLDER_SVG;
-        const regDateUI  = formatToUI(m.registrationDate) || m.registrationDate || '—';
-        const posDisplay = String(m.position || '').trim() || '성도';
-        const bc         = badgeClass[posName] || 'badge-성도';
+        const photoSrc    = m.photo || PLACEHOLDER_SVG;
+        const regDateUI   = formatToUI(m.registrationDate) || m.registrationDate || '—';
+        const posDisplay  = String(m.position || '').trim() || '성도';
+        const bc          = badgeClass[posName] || 'badge-성도';
+        const termDate    = String(m.terminationDate || '').trim();
+        const termReason  = String(m.terminationReason || '').trim();
+        const hasTermInfo = termDate || termReason;
+        const termDateUI  = termDate ? (formatToUI(termDate) || termDate) : '';
+        const termBlock   = hasTermInfo ? `
+                <div class="text-right flex-shrink-0 mr-3 border-r border-rose-100 pr-3">
+                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-wider mb-0.5">해지</div>
+                    ${termDateUI ? `<div class="text-[11px] font-black text-rose-500 font-mono">${termDateUI}</div>` : ''}
+                    ${termReason ? `<div class="text-[10px] font-semibold text-rose-400 mt-0.5">${termReason}</div>` : ''}
+                </div>` : '';
         return `
-            <div class="nm-card" onclick="selectPositionMember(${idx})">
+            <div class="nm-card${hasTermInfo ? ' opacity-60' : ''}" onclick="selectPositionMember(${idx})">
                 <img class="nm-photo" src="${photoSrc}" onerror="this.src='${PLACEHOLDER_SVG}'" alt="">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -1167,6 +1177,7 @@ function renderPositionList(posName) {
                     </div>
                     ${m.engName ? `<div class="text-[11px] text-slate-400 font-semibold mt-0.5">${m.engName}</div>` : ''}
                 </div>
+                ${termBlock}
                 <div class="text-right flex-shrink-0">
                     <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">등록일</div>
                     <div class="text-[12px] font-black text-violet-600 font-mono">${regDateUI}</div>
