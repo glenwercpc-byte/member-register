@@ -1096,7 +1096,7 @@ function applyDriveLink() {
     const msg   = document.getElementById('drive-link-msg');
     const raw   = input.value.trim();
 
-    // FILE_ID 추출: /d/FILE_ID/ 또는 id=FILE_ID 패턴
+    // FILE_ID 추출
     let fileId = null;
     const m1 = raw.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
     const m2 = raw.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
@@ -1110,20 +1110,24 @@ function applyDriveLink() {
         return;
     }
 
-    const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    // thumbnail URL 방식 (구글 드라이브 외부 임베드 차단 우회)
+    const directUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
     currentPhoto = directUrl;
     const preview = document.getElementById('photo-preview');
-    preview.src = directUrl;
     preview.onerror = () => {
-        msg.textContent = '사진을 불러올 수 없습니다. 드라이브 공유 설정을 "링크가 있는 모든 사용자"로 변경해주세요.';
+        msg.textContent = '사진을 불러올 수 없습니다. 공유 설정을 다시 확인해주세요.';
         msg.className = 'mt-1 text-[10px] font-bold ml-0.5 text-rose-500';
         msg.classList.remove('hidden');
+        preview.onerror = null;
         preview.src = PLACEHOLDER_SVG;
         currentPhoto = '';
     };
-    msg.textContent = '✓ 드라이브 사진이 연결되었습니다.';
-    msg.className = 'mt-1 text-[10px] font-bold ml-0.5 text-emerald-600';
-    msg.classList.remove('hidden');
+    preview.onload = () => {
+        msg.textContent = '✓ 드라이브 사진이 연결되었습니다.';
+        msg.className = 'mt-1 text-[10px] font-bold ml-0.5 text-emerald-600';
+        msg.classList.remove('hidden');
+    };
+    preview.src = directUrl;
     input.value = '';
 }
 function handlePhotoUpload(input) {
