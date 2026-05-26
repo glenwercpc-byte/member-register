@@ -412,12 +412,12 @@
         <!-- Header -->
         <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white">
+                <div onclick="resetForm(true)" class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white cursor-pointer hover:bg-indigo-700 transition-colors" title="초기화">
                     <i data-lucide="church" class="text-white w-6 h-6"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-3">
-                        <h1 class="text-xl font-black tracking-tight text-slate-900">교인 통합 관리</h1>
+                        <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
                         <div class="flex items-center gap-2">
                             <div class="relative">
                                 <input type="password" id="app-password" maxlength="4" class="w-20 h-8 px-2 text-center text-sm font-black bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-300 placeholder:font-normal" placeholder="비밀번호" oninput="checkPassword(this)">
@@ -432,7 +432,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-3 mt-1.5">
-                        <span class="text-[15px] font-black text-slate-950 uppercase tracking-tight">시카고 언약장로교회</span>
+                        <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
                         <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
                             시스템 로딩 중
