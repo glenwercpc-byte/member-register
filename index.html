@@ -965,8 +965,8 @@ async function handleSaveAction() {
             return;
         }
     } else {
-        // 수정 모드: 다른 사람의 ID와 겹치는 경우만 차단
-        if (existing && existing.name !== nameVal) {
+        // 수정 모드: 현재 편집 중인 본인(originalName)이 아닌 다른 레코드와 ID가 겹치면 차단
+        if (existing && String(existing.name).trim() !== originalName) {
             showDuplicateWarning(`[${existing.name}] 교인이 이 번호를 사용 중입니다.`);
             return;
         }
