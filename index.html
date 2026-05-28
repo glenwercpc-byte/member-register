@@ -1454,6 +1454,29 @@ function showAlert(msg, type = 'info') {
 }
 
 // 엔터키 검색 지원
+// 날짜 입력칸 자동 포맷 (MM-DD-YYYY)
+function autoFormatDate(el) {
+    let v = el.value.replace(/\D/g, ''); // 숫자만 추출
+    if (v.length > 8) v = v.slice(0, 8);
+    let formatted = '';
+    if (v.length <= 2) {
+        formatted = v;
+    } else if (v.length <= 4) {
+        formatted = v.slice(0,2) + '-' + v.slice(2);
+    } else {
+        formatted = v.slice(0,2) + '-' + v.slice(2,4) + '-' + v.slice(4);
+    }
+    el.value = formatted;
+}
+
+document.querySelectorAll('[data-key$="Date"]').forEach(el => {
+    el.addEventListener('input', function(e) {
+        // 삭제 중일 때는 포맷 강제 안 함
+        const isDeleting = e.inputType && e.inputType.startsWith('delete');
+        if (!isDeleting) autoFormatDate(this);
+    });
+});
+
 document.getElementById('search').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchData();
 });
