@@ -325,22 +325,20 @@
         /* ── 자료 제공 드롭다운 ── */
         .dropdown-wrap { position: relative; }
         .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
+            position: fixed;
             min-width: 160px;
             background: white;
             border: 1.5px solid #e2e8f0;
             border-radius: 0.875rem;
             box-shadow: 0 12px 40px -8px rgba(0,0,0,0.18);
-            z-index: 100;
+            z-index: 9999;
             overflow: hidden;
             opacity: 0;
             transform: translateY(-6px) scale(0.97);
             pointer-events: none;
             transition: opacity 0.18s ease, transform 0.18s ease;
         }
-        .dropdown-wrap.open .dropdown-menu {
+        .dropdown-menu.open {
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
@@ -540,7 +538,7 @@
         </div>
 
         <!-- Master Control -->
-        <div id="main-control-section" class="relative section-card p-4 border-b-4 border-b-indigo-500 shadow-lg overflow-hidden">
+        <div id="main-control-section" class="relative section-card p-4 border-b-4 border-b-indigo-500 shadow-lg">
             <div id="lock-overlay" class="app-overlay">
                 <div class="text-slate-400 text-xs font-black flex items-center gap-2">
                     <i data-lucide="shield-alert" class="w-4 h-4"></i>
@@ -1335,21 +1333,25 @@ function handlePhotoUpload(input) {
 // ── 자료 제공 드롭다운 ──────────────────────────────────────
 function toggleDataDropdown(e) {
     e.stopPropagation();
-    const wrap = document.getElementById('data-dropdown-wrap');
+    const btn    = e.currentTarget;
+    const menu   = btn.parentElement.querySelector('.dropdown-menu');
     const chevron = document.getElementById('data-dropdown-chevron');
-    const isOpen = wrap.classList.toggle('open');
+    const isOpen = menu.classList.toggle('open');
     chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+    if (isOpen) {
+        const rect = btn.getBoundingClientRect();
+        menu.style.top  = (rect.bottom + 6) + 'px';
+        menu.style.left = rect.left + 'px';
+    }
 }
 function closeDataDropdown() {
-    const wrap = document.getElementById('data-dropdown-wrap');
-    document.getElementById('data-dropdown-chevron').style.transform = '';
-    wrap.classList.remove('open');
+    const menu = document.querySelector('.dropdown-menu');
+    if (menu) menu.classList.remove('open');
+    const chevron = document.getElementById('data-dropdown-chevron');
+    if (chevron) chevron.style.transform = '';
 }
 // 외부 클릭 시 드롭다운 닫기
-document.addEventListener('click', (e) => {
-    const wrap = document.getElementById('data-dropdown-wrap');
-    if (wrap && !wrap.contains(e.target)) closeDataDropdown();
-});
+document.addEventListener('click', () => closeDataDropdown());
 // ────────────────────────────────────────────────────────────
 
 // ── 해지자 명단 모달 ──────────────────────────────────────────
