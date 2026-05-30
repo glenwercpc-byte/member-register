@@ -302,6 +302,64 @@
         .badge-장로  { background:#fff7ed; color:#f97316; }
         .badge-교회스텝 { background:#f0fdf4; color:#16a34a; }
 
+        /* ── 해지자 명단 모달 ── */
+        #terminated-modal {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+        }
+        #terminated-modal.show { opacity: 1; pointer-events: auto; }
+        #terminated-modal-box {
+            background: white; border-radius: 1.75rem; padding: 0;
+            width: calc(100% - 2rem); max-width: 680px; max-height: 90vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 32px 80px -12px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.04);
+            transform: scale(0.93) translateY(12px);
+            transition: transform 0.32s cubic-bezier(0.175,0.885,0.32,1.275);
+            overflow: hidden;
+        }
+        #terminated-modal.show #terminated-modal-box { transform: scale(1) translateY(0); }
+
+        /* ── 자료 제공 드롭다운 ── */
+        .dropdown-wrap { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 160px;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.875rem;
+            box-shadow: 0 12px 40px -8px rgba(0,0,0,0.18);
+            z-index: 100;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-6px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .dropdown-wrap.open .dropdown-menu {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.65rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: #334155;
+            cursor: pointer;
+            transition: background 0.12s;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover { background: #f8fafc; }
+        .dropdown-item + .dropdown-item { border-top: 1px solid #f1f5f9; }
+
         /* ── 성명 변경 확인 모달 ── */
         #namechange-modal {
             position: fixed;
@@ -513,14 +571,28 @@
                         <span class="spinner"></span>
                         <span class="btn-text">검색</span>
                     </button>
-                    <button onclick="openPositionModal()" class="btn-primary bg-violet-500 text-white px-4 rounded-xl font-black shadow-md hover:bg-violet-600 whitespace-nowrap gap-1.5">
-                        <i data-lucide="award" class="w-4 h-4 flex-shrink-0"></i>
-                        <span class="text-sm">직분자 명단</span>
-                    </button>
-                    <button onclick="openNewMemberModal()" class="btn-primary bg-emerald-500 text-white px-4 rounded-xl font-black shadow-md hover:bg-emerald-600 whitespace-nowrap gap-1.5">
-                        <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
-                        <span class="text-sm">새가족 명단</span>
-                    </button>
+                    <!-- 자료 제공 드롭다운 -->
+                    <div class="dropdown-wrap" id="data-dropdown-wrap">
+                        <button onclick="toggleDataDropdown()" class="btn-primary bg-slate-700 text-white px-4 rounded-xl font-black shadow-md hover:bg-slate-800 whitespace-nowrap gap-1.5">
+                            <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
+                            <span class="text-sm">자료 제공</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
+                                <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
+                                새가족 명단
+                            </div>
+                            <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
+                                <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
+                                직분자 명단
+                            </div>
+                            <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
+                                <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
+                                해지자 명단
+                            </div>
+                        </div>
+                    </div>
                     <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-indigo-50 text-indigo-600 border border-indigo-200 px-6 rounded-xl font-black hover:bg-indigo-100 whitespace-nowrap">
                         <span class="text-sm">새교우 등록</span>
                     </button>
@@ -711,6 +783,29 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- 해지자 명단 모달 -->
+        <div id="terminated-modal">
+            <div id="terminated-modal-box">
+                <div style="padding:1.5rem 1.75rem 1.25rem; border-bottom:1px solid #f1f5f9; flex-shrink:0;">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-rose-50 rounded-xl">
+                                <i data-lucide="user-x" class="w-5 h-5 text-rose-500"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 tracking-tight">해지자 명단</h2>
+                                <p class="text-[11px] font-semibold text-slate-400 mt-0.5">해지일 또는 해지사유가 입력된 교인</p>
+                            </div>
+                        </div>
+                        <button onclick="closeTerminatedModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-500">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="terminated-list" style="overflow-y:auto; flex:1; padding:1rem 1.25rem;"></div>
             </div>
         </div>
 
@@ -1237,6 +1332,105 @@ function handlePhotoUpload(input) {
     }
 }
 
+// ── 자료 제공 드롭다운 ──────────────────────────────────────
+function toggleDataDropdown() {
+    const wrap = document.getElementById('data-dropdown-wrap');
+    const chevron = document.getElementById('data-dropdown-chevron');
+    const isOpen = wrap.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+}
+function closeDataDropdown() {
+    const wrap = document.getElementById('data-dropdown-wrap');
+    document.getElementById('data-dropdown-chevron').style.transform = '';
+    wrap.classList.remove('open');
+}
+// 외부 클릭 시 드롭다운 닫기
+document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('data-dropdown-wrap');
+    if (wrap && !wrap.contains(e.target)) closeDataDropdown();
+});
+// ────────────────────────────────────────────────────────────
+
+// ── 해지자 명단 모달 ──────────────────────────────────────────
+function openTerminatedModal() {
+    if (!isUnlocked) return;
+    renderTerminatedList();
+    document.getElementById('terminated-modal').classList.add('show');
+    lucide.createIcons();
+}
+function closeTerminatedModal() {
+    document.getElementById('terminated-modal').classList.remove('show');
+}
+function renderTerminatedList() {
+    const results = memberCache.filter(m =>
+        String(m.terminationDate || '').trim() || String(m.terminationReason || '').trim()
+    );
+    // 해지일 내림차순 정렬
+    results.sort((a, b) => {
+        const da = String(a.terminationDate || '').trim();
+        const db = String(b.terminationDate || '').trim();
+        if (!da && !db) return String(a.name||'').localeCompare(String(b.name||''), 'ko');
+        if (!da) return 1;
+        if (!db) return -1;
+        return db.localeCompare(da);
+    });
+
+    const listEl = document.getElementById('terminated-list');
+    listEl.scrollTop = 0;
+
+    if (results.length === 0) {
+        listEl.innerHTML = `<div class="nm-empty">
+            <i data-lucide="check-circle" class="w-10 h-10 mx-auto mb-3 text-slate-200"></i>
+            <p>해지된 교인이 없습니다</p></div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    window._termResults = results;
+    listEl.innerHTML = `
+        <div class="text-[11px] font-black text-slate-400 mb-3 ml-1">총 ${results.length}명</div>
+        ${results.map((m, idx) => {
+            const photoSrc   = m.photo || PLACEHOLDER_SVG;
+            const termDate   = String(m.terminationDate || '').trim();
+            const termReason = String(m.terminationReason || '').trim();
+            const termDateUI = termDate ? (formatToUI(termDate) || termDate) : '—';
+            const regDateUI  = formatToUI(m.registrationDate) || m.registrationDate || '—';
+            const posDisplay = String(m.position || '').trim() || '성도';
+            return `
+            <div class="nm-card opacity-70 hover:opacity-100" onclick="selectTerminatedMember(${idx})">
+                <img class="nm-photo" src="${photoSrc}" onerror="this.src='${PLACEHOLDER_SVG}'" alt="">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-black text-slate-900">${m.name || ''}</span>
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">${posDisplay}</span>
+                        <span class="text-[10px] font-mono text-slate-300">#${m.id || ''}</span>
+                    </div>
+                    ${termReason ? `<div class="text-[11px] text-rose-400 font-bold mt-0.5">${termReason}</div>` : ''}
+                </div>
+                <div class="text-right flex-shrink-0 space-y-1.5">
+                    <div>
+                        <div class="text-[10px] font-black text-rose-400 uppercase tracking-wider">해지일</div>
+                        <div class="text-[11px] font-black text-rose-500 font-mono">${termDateUI}</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">등록일</div>
+                        <div class="text-[11px] font-black text-slate-500 font-mono">${regDateUI}</div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('')}`;
+    lucide.createIcons();
+}
+function selectTerminatedMember(idx) {
+    const results = window._termResults;
+    if (!results || idx < 0 || idx >= results.length) return;
+    closeTerminatedModal();
+    clearWarning();
+    fillFormData(results[idx]);
+    showAlert(`${results[idx].name} 교인 정보를 불러왔습니다.`, 'success');
+}
+// ────────────────────────────────────────────────────────────
+
 // ── 직분자 명단 모달 ──────────────────────────────────────────
 let _currentPositionTab = '성도';
 
@@ -1572,6 +1766,9 @@ document.getElementById('save-modal').addEventListener('click', (e) => {
 });
 
 // 새가족 모달: 배경 클릭으로 닫기
+document.getElementById('terminated-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('terminated-modal')) closeTerminatedModal();
+});
 document.getElementById('newmember-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('newmember-modal')) closeNewMemberModal();
 });
