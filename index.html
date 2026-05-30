@@ -573,7 +573,7 @@
                     </button>
                     <!-- 자료 제공 드롭다운 -->
                     <div class="dropdown-wrap" id="data-dropdown-wrap">
-                        <button onclick="toggleDataDropdown()" class="btn-primary bg-slate-700 text-white px-4 rounded-xl font-black shadow-md hover:bg-slate-800 whitespace-nowrap gap-1.5">
+                        <button onclick="toggleDataDropdown(event)" class="btn-primary bg-slate-700 text-white px-4 rounded-xl font-black shadow-md hover:bg-slate-800 whitespace-nowrap gap-1.5">
                             <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
                             <span class="text-sm">자료 제공</span>
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
@@ -1333,7 +1333,8 @@ function handlePhotoUpload(input) {
 }
 
 // ── 자료 제공 드롭다운 ──────────────────────────────────────
-function toggleDataDropdown() {
+function toggleDataDropdown(e) {
+    e.stopPropagation();
     const wrap = document.getElementById('data-dropdown-wrap');
     const chevron = document.getElementById('data-dropdown-chevron');
     const isOpen = wrap.classList.toggle('open');
