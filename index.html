@@ -1487,12 +1487,19 @@ function updateSortTabs() {
     }
 }
 function renderAllMembersList() {
+    // 교인번호 정렬 헬퍼: "1", "1-1", "2", "2-1" 순
+    function parseIdKey(id) {
+        const s = String(id || '').trim();
+        const m = s.match(/^(\d+)(?:-(\d+))?/);
+        if (!m) return [99999, 0];
+        return [parseInt(m[1]) || 0, parseInt(m[2] || '0')];
+    }
+
     const results = [...memberCache].sort((a, b) => {
         if (_allMembersSort === 'id') {
-            // 교인번호 숫자 오름차순
-            const ai = parseInt(String(a.id || '').replace(/\D/g, '')) || 0;
-            const bi = parseInt(String(b.id || '').replace(/\D/g, '')) || 0;
-            return ai - bi;
+            const [am, as_] = parseIdKey(a.id);
+            const [bm, bs_] = parseIdKey(b.id);
+            return am !== bm ? am - bm : as_ - bs_;
         }
         return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
     });
@@ -1531,9 +1538,9 @@ function renderAllMembersList() {
                 header = `<div class="text-[10px] font-black text-slate-400 tracking-widest px-1 pt-3 pb-1 mt-1 border-b border-slate-100">${initial}</div>`;
             }
         } else {
-            const idNum = parseInt(String(m.id || '').replace(/\D/g, '')) || 0;
-            const band  = Math.floor(idNum / 100) * 100;
-            const bandLabel = band === 0 ? '001 ~' : `${String(band+1).padStart(3,'0')} ~`;
+            const mainNum = parseInt(String(m.id || '').match(/^(\d+)/)?.[1] || '0') || 0;
+            const band = Math.floor(mainNum / 100) * 100;
+            const bandLabel = `${band + 1} ~ ${band + 100}`;
             if (String(band) !== currentGroup) {
                 currentGroup = String(band);
                 header = `<div class="text-[10px] font-black text-slate-400 tracking-widest px-1 pt-3 pb-1 mt-1 border-b border-slate-100">${bandLabel}</div>`;
@@ -1555,7 +1562,7 @@ function renderAllMembersList() {
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="text-sm font-black text-slate-900">${m.name || ''}</span>
                         <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${badgeColor}">${posDisplay}</span>
-                        <span class="text-[10px] font-mono text-slate-300">#${m.id || ''}</span>
+                        <span class="text-[11px] font-black text-slate-600 font-mono">#${m.id || ''}</span>
                     </div>
                     ${m.engName ? `<div class="text-[11px] text-slate-400 font-semibold mt-0.5">${m.engName}</div>` : ''}
                 </div>
