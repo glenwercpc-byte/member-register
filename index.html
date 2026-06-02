@@ -302,6 +302,39 @@
         .badge-장로  { background:#fff7ed; color:#f97316; }
         .badge-교회스텝 { background:#f0fdf4; color:#16a34a; }
 
+        /* ── 동기화 애니메이션 ── */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes sync-bar {
+            0%   { width: 0%; opacity: 1; }
+            80%  { width: 90%; opacity: 1; }
+            100% { width: 100%; opacity: 0; }
+        }
+        .sync-spinner {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border: 2px solid #a5b4fc;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin-slow 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+        #sync-progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+            z-index: 9999;
+            width: 0%;
+            opacity: 0;
+            transition: none;
+        }
+        #sync-progress-bar.running {
+            animation: sync-bar 2.5s ease-out forwards;
+        }
+
         /* ── 전교인 명단 모달 ── */
         #allmembers-modal {
             position: fixed; inset: 0; z-index: 200;
@@ -509,6 +542,7 @@
     </style>
 </head>
 <body class="antialiased bg-slate-50 font-bold">
+    <div id="sync-progress-bar"></div>
 
 <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-6xl mx-auto space-y-6">
@@ -601,13 +635,13 @@
                                 <i data-lucide="users-2" class="w-4 h-4 text-indigo-500"></i>
                                 전교인 명단
                             </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
-                                <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
-                                새가족 명단
-                            </div>
                             <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
                                 <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
                                 직분자 명단
+                            </div>
+                            <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
+                                <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
+                                새가족 명단
                             </div>
                             <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
                                 <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
@@ -1069,15 +1103,26 @@ async function fetchDatabase() {
 
 function updateStatusBadge(state) {
     const badge = document.getElementById('status-badge');
-    if(state === 'online') {
+    const bar   = document.getElementById('sync-progress-bar');
+    if (state === 'online') {
         badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-tight";
         badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 동기화 완료';
-    } else if(state === 'syncing') {
+        bar.classList.remove('running');
+        bar.style.opacity = '0';
+    } else if (state === 'syncing') {
         badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight";
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> 데이터 동기화 중';
+        badge.innerHTML = '<span class="sync-spinner"></span> 데이터 동기화 중&hellip;';
+        // 프로그레스 바 재시작
+        bar.classList.remove('running');
+        bar.style.width = '0%';
+        bar.style.opacity = '1';
+        void bar.offsetWidth; // reflow
+        bar.classList.add('running');
     } else {
         badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-tight";
         badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> 오프라인';
+        bar.classList.remove('running');
+        bar.style.opacity = '0';
     }
 }
 
