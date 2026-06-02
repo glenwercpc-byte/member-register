@@ -1458,7 +1458,15 @@ function renderAllMembersList() {
         String(a.name || '').localeCompare(String(b.name || ''), 'ko')
     );
     const listEl = document.getElementById('allmembers-list');
-    document.getElementById('allmembers-count').textContent = `총 ${results.length}명 · 가나다순`;
+    const terminatedCount = results.filter(m =>
+        String(m.terminationDate || '').trim() || String(m.terminationReason || '').trim()
+    ).length;
+    const activeCount = results.length - terminatedCount;
+
+    document.getElementById('allmembers-count').innerHTML =
+        `총 ${results.length}명 · 가나다순 &nbsp;|&nbsp; ` +
+        `<span class="text-rose-500">해지자 ${terminatedCount}명</span> &nbsp;·&nbsp; ` +
+        `<span class="text-emerald-600">현재 인원 ${activeCount}명</span>`;
     listEl.scrollTop = 0;
     window._allResults = results;
 
