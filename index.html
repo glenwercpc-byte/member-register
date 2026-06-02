@@ -303,23 +303,20 @@
         .badge-교회스텝 { background:#f0fdf4; color:#16a34a; }
 
         /* ── 동기화 애니메이션 ── */
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
         @keyframes sync-bar {
             0%   { width: 0%; opacity: 1; }
             80%  { width: 90%; opacity: 1; }
             100% { width: 100%; opacity: 0; }
         }
-        .sync-spinner {
+        @keyframes slide-text {
+            0%   { transform: translateX(-60%); opacity: 0; }
+            20%  { opacity: 1; }
+            80%  { opacity: 1; }
+            100% { transform: translateX(60%); opacity: 0; }
+        }
+        .sync-slide-text {
             display: inline-block;
-            width: 10px; height: 10px;
-            border: 2px solid #a5b4fc;
-            border-top-color: #4f46e5;
-            border-radius: 50%;
-            animation: spin-slow 0.7s linear infinite;
-            flex-shrink: 0;
+            animation: slide-text 1.6s ease-in-out infinite;
         }
         #sync-progress-bar {
             position: fixed;
@@ -1110,8 +1107,8 @@ function updateStatusBadge(state) {
         bar.classList.remove('running');
         bar.style.opacity = '0';
     } else if (state === 'syncing') {
-        badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight";
-        badge.innerHTML = '<span class="sync-spinner"></span> 데이터 동기화 중&hellip;';
+        badge.className = "flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight overflow-hidden max-w-[160px]";
+        badge.innerHTML = '<span class="sync-slide-text">데이터 동기화 중</span>';
         // 프로그레스 바 재시작
         bar.classList.remove('running');
         bar.style.width = '0%';
