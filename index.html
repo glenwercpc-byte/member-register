@@ -1555,8 +1555,18 @@ function renderAllMembersList() {
             : classifyPosition(m.position) === '권사'   ? 'text-purple-500 bg-purple-50'
             : classifyPosition(m.position) === '집사'   ? 'text-blue-500 bg-blue-50'
             : 'text-slate-500 bg-slate-100';
+        const termDate   = String(m.terminationDate || '').trim();
+        const termReason = String(m.terminationReason || '').trim();
+        const hasTerm    = termDate || termReason;
+        const termDateUI = termDate ? (formatToUI(termDate) || termDate) : '';
+        const termBlock  = hasTerm ? `
+                <div class="text-right flex-shrink-0 mr-3 border-r border-red-100 pr-3">
+                    <div class="text-[10px] font-black text-red-600 uppercase tracking-wider mb-0.5">해지</div>
+                    ${termDateUI ? `<div class="text-[11px] font-black text-red-600 font-mono">${termDateUI}</div>` : ''}
+                    ${termReason ? `<div class="text-[10px] font-bold text-red-600 mt-0.5">${termReason}</div>` : ''}
+                </div>` : '';
         return `${header}
-            <div class="nm-card" onclick="selectAllMember(${idx})">
+            <div class="nm-card${hasTerm ? ' opacity-75' : ''}" onclick="selectAllMember(${idx})">
                 <img class="nm-photo" src="${photoSrc}" onerror="this.src='${PLACEHOLDER_SVG}'" alt="">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -1566,6 +1576,7 @@ function renderAllMembersList() {
                     </div>
                     ${m.engName ? `<div class="text-[11px] text-slate-400 font-semibold mt-0.5">${m.engName}</div>` : ''}
                 </div>
+                ${termBlock}
                 <div class="text-right flex-shrink-0">
                     <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">등록일</div>
                     <div class="text-[12px] font-black text-indigo-500 font-mono">${regDateUI}</div>
