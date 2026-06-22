@@ -114,19 +114,7 @@
         }
 
         .app-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(2px);
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 1.25rem;
-        }
-
-        .lock-badge {
-            animation: bounce 2s infinite;
+            display: none;
         }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -553,18 +541,6 @@
                 <div>
                     <div class="flex items-center gap-3">
                         <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
-                        <div class="flex items-center gap-2">
-                            <div class="relative">
-                                <input type="password" id="app-password" maxlength="4" class="w-20 h-8 px-2 text-center text-sm font-black bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-300 placeholder:font-normal" placeholder="비밀번호" oninput="checkPassword(this)">
-                                <div id="lock-icon-container" class="absolute -right-2 -top-2 bg-rose-500 text-white p-1 rounded-full shadow-lg lock-badge">
-                                    <i data-lucide="lock" class="w-3 h-3"></i>
-                                </div>
-                            </div>
-                            <button id="sign-out-btn" onclick="signOut()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black bg-slate-100 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all">
-                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                                로그아웃
-                            </button>
-                        </div>
                     </div>
                     <div class="flex items-center gap-3 mt-1.5">
                         <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
@@ -590,13 +566,6 @@
 
         <!-- Master Control -->
         <div id="main-control-section" class="relative section-card p-4 border-b-4 border-b-indigo-500 shadow-lg">
-            <div id="lock-overlay" class="app-overlay">
-                <div class="text-slate-400 text-xs font-black flex items-center gap-2">
-                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
-                    암호를 입력하여 시스템을 활성화하십시오
-                </div>
-            </div>
-            
             <!-- 중복 경고 메시지 영역 -->
             <div id="duplicate-warning" class="hidden items-center gap-4 px-6 py-4 mb-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 warning-pulse">
                 <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
@@ -1024,7 +993,6 @@
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-N1Y8NaNVu1jiWMxIKQ7xoAQu_65_BKBrT9kZcgiBEN2vsJ52PBTVSVnzkNKQBN0Azw/exec";
 const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='1'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-const APP_KEY = "1424";   // 시스템 잠금 해제 암호
 const SAVE_KEY = "4241";  // 데이터 저장 확인 암호
 
 let memberCache = []; 
@@ -1060,25 +1028,11 @@ function formatToData(dateStr) {
     return dateStr;
 }
 
-// 비밀번호 확인 및 잠금 해제
-function checkPassword(input) {
-    if (input.value === APP_KEY) {
-        unlockApp();
-    } else if (input.value.length === 4) {
-        input.value = '';
-        showAlert('암호가 틀렸습니다.', 'error');
-    }
-}
-
+// 시스템 활성화 (암호 없이 자동 실행)
 function unlockApp() {
     isUnlocked = true;
-    document.getElementById('lock-overlay').classList.add('hidden');
-    document.getElementById('sign-out-btn').classList.remove('hidden');
-    document.getElementById('lock-icon-container').classList.replace('bg-rose-500', 'bg-emerald-500');
-    document.getElementById('lock-icon-container').innerHTML = '<i data-lucide="unlock" class="w-3 h-3"></i>';
-    document.getElementById('app-password').disabled = true;
     document.getElementById('main-content-grid').classList.remove('opacity-40');
-    
+
     document.querySelectorAll('.input-field, textarea').forEach(el => {
         el.removeAttribute('readonly');
     });
@@ -1090,11 +1044,6 @@ function unlockApp() {
 
     lucide.createIcons();
     fetchDatabase();
-    showAlert('시스템이 활성화되었습니다.', 'success');
-}
-
-function signOut() {
-    location.reload();
 }
 
 // 데이터베이스 연동
@@ -2036,6 +1985,9 @@ setInterval(() => {
 
 // 초기 아이콘 로드
 lucide.createIcons();
+
+// 암호 없이 시스템 자동 활성화
+unlockApp();
 </script>
 
 </body>
