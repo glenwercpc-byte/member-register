@@ -534,76 +534,74 @@
         
         <!-- Header -->
         <header class="flex flex-col gap-4">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div class="flex items-center gap-4 flex-wrap">
-                    <div onclick="resetForm(true)" class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white cursor-pointer hover:bg-indigo-700 transition-colors" title="초기화">
-                        <i data-lucide="church" class="text-white w-6 h-6"></i>
+            <div class="flex items-center gap-4 flex-wrap">
+                <div onclick="resetForm(true)" class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white cursor-pointer hover:bg-indigo-700 transition-colors" title="초기화">
+                    <i data-lucide="church" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
+                        <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
-                            <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
-                        </div>
-                        <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                            <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
-                            <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-                                시스템 로딩 중
-                            </span>
-
-                            <!-- 검색칸 + 검색 버튼: 동기화 완료 배지 오른쪽 -->
-                            <div class="flex gap-2 flex-shrink-0 ml-1">
-                                <div class="relative" style="width:10ch;">
-                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
-                                    </div>
-                                    <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호/성명">
-                                </div>
-                                <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-5 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
-                                    <span class="spinner"></span>
-                                    <span class="btn-text">검색</span>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                        <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
+                        <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                            시스템 로딩 중
+                        </span>
                     </div>
                 </div>
+            </div>
 
-                <!-- 자료제공 / 새교우 등록 / 데이터 저장: 검색과 분리되어 오른쪽 끝 -->
-                <div class="flex gap-2 flex-wrap lg:flex-shrink-0">
-                    <!-- 자료 제공 드롭다운 -->
-                    <div class="dropdown-wrap" id="data-dropdown-wrap">
-                        <button onclick="toggleDataDropdown(event)" class="btn-primary bg-emerald-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-emerald-700 whitespace-nowrap gap-1.5">
-                            <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
-                            <span class="text-sm">자료 제공</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openAllMembersModal();">
-                                <i data-lucide="users-2" class="w-4 h-4 text-indigo-500"></i>
-                                전교인 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
-                                <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
-                                직분자 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
-                                <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
-                                새가족 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
-                                <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
-                                해지자 명단
-                            </div>
+            <!-- 컨트롤 행: 검색 + 자료제공 + 새교우등록 + 데이터저장 (균등 배치, 같은 라인) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="flex gap-2">
+                    <div class="relative flex-1 min-w-0">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                         </div>
+                        <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호/성명">
                     </div>
-                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-violet-600 text-white px-5 h-9 rounded-xl font-black shadow-md hover:bg-violet-700 whitespace-nowrap">
-                        <span class="text-sm">새교우 등록</span>
-                    </button>
-                    <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white px-5 h-9 rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap">
+                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
                         <span class="spinner"></span>
-                        <span id="save-btn-label" class="btn-text">데이터 저장</span>
+                        <span class="btn-text">검색</span>
                     </button>
                 </div>
+
+                <!-- 자료 제공 드롭다운 -->
+                <div class="dropdown-wrap" id="data-dropdown-wrap">
+                    <button onclick="toggleDataDropdown(event)" class="btn-primary bg-emerald-600 text-white h-9 w-full rounded-xl font-black shadow-md hover:bg-emerald-700 whitespace-nowrap gap-1.5">
+                        <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
+                        <span class="text-sm">자료 제공</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" onclick="closeDataDropdown(); openAllMembersModal();">
+                            <i data-lucide="users-2" class="w-4 h-4 text-indigo-500"></i>
+                            전교인 명단
+                        </div>
+                        <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
+                            <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
+                            직분자 명단
+                        </div>
+                        <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
+                            <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
+                            새가족 명단
+                        </div>
+                        <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
+                            <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
+                            해지자 명단
+                        </div>
+                    </div>
+                </div>
+
+                <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-violet-600 text-white h-9 w-full rounded-xl font-black shadow-md hover:bg-violet-700 whitespace-nowrap">
+                    <span class="text-sm">새교우 등록</span>
+                </button>
+                <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white h-9 w-full rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap">
+                    <span class="spinner"></span>
+                    <span id="save-btn-label" class="btn-text">데이터 저장</span>
+                </button>
             </div>
         </header>
 
@@ -736,14 +734,14 @@
                         </div>
 
                         <!-- Notes -->
-                        <div class="space-y-4 pt-2 border-t border-slate-50">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-50">
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">가족 관계 및 비고</label>
-                                <textarea class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed" data-key="notes" placeholder="가족 구성원 등 핵심 정보를 기록하세요."></textarea>
+                                <textarea class="input-field auto-grow w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed overflow-hidden" data-key="notes" placeholder="가족 구성원 등 핵심 정보를 기록하세요." rows="3" oninput="autoGrowTextarea(this)"></textarea>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">심방 및 기도 제목</label>
-                                <textarea class="input-field w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed" data-key="extendedNotes" placeholder="상세한 상담 내용이나 기도 제목을 기록하세요."></textarea>
+                                <textarea class="input-field auto-grow w-full px-4 py-3 rounded-2xl bg-slate-50 resize-none text-sm font-black leading-relaxed overflow-hidden" data-key="extendedNotes" placeholder="상세한 상담 내용이나 기도 제목을 기록하세요." rows="3" oninput="autoGrowTextarea(this)"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1299,6 +1297,7 @@ function fillFormData(record) {
     }
     isNewMode = false; // 검색 후 불러오면 수정 모드
     originalName = String(record.name || '').trim(); // 원래 성명 저장
+    autoGrowAllTextareas();
 }
 
 function resetForm(isManual) {
@@ -1311,6 +1310,7 @@ function resetForm(isManual) {
     clearWarning();
     isNewMode = true; // 새교우 등록 모드 설정
     originalName = '';
+    autoGrowAllTextareas();
     if(isManual) showAlert('입력란이 초기화되었습니다. 신규 등록 모드입니다.', 'info');
 }
 
@@ -1924,6 +1924,16 @@ function showAlert(msg, type = 'info') {
 
 // 엔터키 검색 지원
 // 날짜 입력칸 자동 포맷 (MM-DD-YYYY)
+// 텍스트영역 자동 높이 조절
+function autoGrowTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+}
+// 모든 auto-grow 텍스트영역 초기 높이 맞추기 (데이터 로드 후 호출)
+function autoGrowAllTextareas() {
+    document.querySelectorAll('textarea.auto-grow').forEach(autoGrowTextarea);
+}
+
 function autoFormatDate(el) {
     let v = el.value.replace(/\D/g, ''); // 숫자만 추출
     if (v.length > 8) v = v.slice(0, 8);
