@@ -534,22 +534,16 @@
         
         <!-- Header -->
         <header class="flex flex-col gap-4">
-            <!-- 로고/타이틀/시간/교회명/상태: 전체 중앙 정렬 -->
-            <div class="flex flex-col items-center text-center gap-2">
+            <!-- 로고 / CCPC 교인 명부 관리 / 동기화 상태: 정중앙 한 줄 -->
+            <div class="flex items-center justify-center gap-3 flex-wrap">
                 <div onclick="resetForm(true)" class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white cursor-pointer hover:bg-indigo-700 transition-colors" title="초기화">
                     <i data-lucide="church" class="text-white w-6 h-6"></i>
                 </div>
-                <div class="flex items-center justify-center gap-3 flex-wrap">
-                    <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
-                    <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
-                </div>
-                <div class="flex items-center justify-center gap-3 flex-wrap">
-                    <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
-                    <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-                        시스템 로딩 중
-                    </span>
-                </div>
+                <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">CCPC 교인 명부 관리</h1>
+                <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                    시스템 로딩 중
+                </span>
             </div>
 
             <!-- 컨트롤 행: 사진 영역(3) / 폼 영역(9) 칼럼과 좌우 끝을 맞춤 -->
@@ -2007,15 +2001,6 @@ document.getElementById('newmember-modal').addEventListener('click', (e) => {
 document.getElementById('position-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('position-modal')) closePositionModal();
 });
-
-// 실시간 시계
-setInterval(() => {
-    const now = new Date();
-    document.getElementById('current-time').innerText = now.toLocaleString('ko-KR', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    });
-}, 1000);
 
 // 초기 아이콘 로드
 lucide.createIcons();
