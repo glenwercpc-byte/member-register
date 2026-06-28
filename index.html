@@ -534,75 +534,78 @@
         
         <!-- Header -->
         <header class="flex flex-col gap-4">
-            <div class="flex items-center gap-4 flex-wrap">
+            <!-- 로고/타이틀/시간/교회명/상태: 전체 중앙 정렬 -->
+            <div class="flex flex-col items-center text-center gap-2">
                 <div onclick="resetForm(true)" class="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-100 ring-4 ring-white cursor-pointer hover:bg-indigo-700 transition-colors" title="초기화">
                     <i data-lucide="church" class="text-white w-6 h-6"></i>
                 </div>
-                <div>
-                    <div class="flex items-center gap-3 flex-wrap">
-                        <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
-                        <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
-                    </div>
-                    <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                        <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
-                        <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-                            시스템 로딩 중
-                        </span>
-                    </div>
+                <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
+                    <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
+                </div>
+                <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
+                    <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                        시스템 로딩 중
+                    </span>
                 </div>
             </div>
 
-            <!-- 컨트롤 행: 검색(왼쪽, 늘어남) + 자료제공/새교우등록/데이터저장(오른쪽, 글씨 크기) -->
-            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
-                <div class="flex gap-2 flex-1 min-w-0">
-                    <div class="relative flex-1 min-w-0 max-w-xs">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+            <!-- 컨트롤 행: 사진 영역(3) / 폼 영역(9) 칼럼과 좌우 끝을 맞춤 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-3">
+                    <div class="flex gap-2">
+                        <div class="relative flex-1 min-w-0">
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                            <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호/성명">
                         </div>
-                        <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호/성명">
+                        <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
+                            <span class="spinner"></span>
+                            <span class="btn-text">검색</span>
+                        </button>
                     </div>
-                    <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
-                        <span class="spinner"></span>
-                        <span class="btn-text">검색</span>
-                    </button>
                 </div>
 
-                <div class="flex gap-2 flex-shrink-0 sm:ml-auto">
-                    <!-- 자료 제공 드롭다운 -->
-                    <div class="dropdown-wrap" id="data-dropdown-wrap">
-                        <button onclick="toggleDataDropdown(event)" class="btn-primary bg-emerald-600 text-white h-9 px-4 rounded-xl font-black shadow-md hover:bg-emerald-700 whitespace-nowrap gap-1.5">
-                            <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
-                            <span class="text-sm">자료 제공</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openAllMembersModal();">
-                                <i data-lucide="users-2" class="w-4 h-4 text-indigo-500"></i>
-                                전교인 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
-                                <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
-                                직분자 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
-                                <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
-                                새가족 명단
-                            </div>
-                            <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
-                                <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
-                                해지자 명단
+                <div class="lg:col-span-9">
+                    <div class="flex gap-2 justify-end flex-wrap">
+                        <!-- 자료 제공 드롭다운 -->
+                        <div class="dropdown-wrap" id="data-dropdown-wrap">
+                            <button onclick="toggleDataDropdown(event)" class="btn-primary bg-emerald-600 text-white h-9 px-4 rounded-xl font-black shadow-md hover:bg-emerald-700 whitespace-nowrap gap-1.5">
+                                <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
+                                <span class="text-sm">자료 제공</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" id="data-dropdown-chevron"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeDataDropdown(); openAllMembersModal();">
+                                    <i data-lucide="users-2" class="w-4 h-4 text-indigo-500"></i>
+                                    전교인 명단
+                                </div>
+                                <div class="dropdown-item" onclick="closeDataDropdown(); openPositionModal();">
+                                    <i data-lucide="award" class="w-4 h-4 text-violet-500"></i>
+                                    직분자 명단
+                                </div>
+                                <div class="dropdown-item" onclick="closeDataDropdown(); openNewMemberModal();">
+                                    <i data-lucide="users" class="w-4 h-4 text-emerald-500"></i>
+                                    새가족 명단
+                                </div>
+                                <div class="dropdown-item" onclick="closeDataDropdown(); openTerminatedModal();">
+                                    <i data-lucide="user-x" class="w-4 h-4 text-rose-400"></i>
+                                    해지자 명단
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-violet-600 text-white h-9 px-4 rounded-xl font-black shadow-md hover:bg-violet-700 whitespace-nowrap">
-                        <span class="text-sm">새교우 등록</span>
-                    </button>
-                    <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white h-9 px-4 rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap">
-                        <span class="spinner"></span>
-                        <span id="save-btn-label" class="btn-text">데이터 저장</span>
-                    </button>
+                        <button id="reset-btn" onclick="resetForm(true)" class="btn-primary bg-violet-600 text-white h-9 px-4 rounded-xl font-black shadow-md hover:bg-violet-700 whitespace-nowrap">
+                            <span class="text-sm">새교우 등록</span>
+                        </button>
+                        <button onclick="handleSaveAction()" id="save-btn" class="btn-primary bg-indigo-900 text-white h-9 px-4 rounded-xl font-black shadow-lg hover:bg-indigo-950 whitespace-nowrap">
+                            <span class="spinner"></span>
+                            <span id="save-btn-label" class="btn-text">데이터 저장</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
