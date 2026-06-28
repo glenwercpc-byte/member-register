@@ -583,7 +583,7 @@
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                 <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                             </div>
-                            <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호/성명">
+                            <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="성명 검색">
                             <div id="search-suggest"></div>
                         </div>
                         <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
@@ -1285,7 +1285,6 @@ function searchData() {
     if (!q) return;
 
     const matches = memberCache.filter(x =>
-        String(x.id || "").toLowerCase().includes(q) ||
         String(x.name || "").toLowerCase().includes(q)
     );
 
@@ -2066,7 +2065,6 @@ document.getElementById('search').addEventListener('input', () => {
     const q = document.getElementById('search').value.trim().toLowerCase();
     if (!q) { closeSearchSuggest(); return; }
     const matches = memberCache.filter(x =>
-        String(x.id || "").toLowerCase().includes(q) ||
         String(x.name || "").toLowerCase().includes(q)
     );
     if (matches.length === 0) { closeSearchSuggest(); return; }
