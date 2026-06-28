@@ -360,35 +360,6 @@
         }
         #terminated-modal.show #terminated-modal-box { transform: scale(1) translateY(0); }
 
-        /* ── 검색 자동완성 드롭다운 ── */
-        #search-suggest {
-            position: fixed;
-            max-height: 320px;
-            overflow-y: auto;
-            background: white;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 0.875rem;
-            box-shadow: 0 12px 40px -8px rgba(0,0,0,0.18);
-            z-index: 9999;
-            opacity: 0;
-            transform: translateY(-6px) scale(0.97);
-            pointer-events: none;
-            transition: opacity 0.15s ease, transform 0.15s ease;
-        }
-        #search-suggest.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-        .search-suggest-item {
-            padding: 0.6rem 0.875rem;
-            cursor: pointer;
-            transition: background 0.12s;
-            white-space: nowrap;
-        }
-        .search-suggest-item:hover { background: #eef2ff; }
-        .search-suggest-item + .search-suggest-item { border-top: 1px solid #f8fafc; }
-
         /* ── 자료 제공 드롭다운 ── */
         .dropdown-wrap { position: relative; }
         .dropdown-menu {
@@ -584,7 +555,6 @@
                                 <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                             </div>
                             <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="성명 검색">
-                            <div id="search-suggest"></div>
                         </div>
                         <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
                             <span class="spinner"></span>
@@ -1284,65 +1254,18 @@ function searchData() {
     const q = document.getElementById('search').value.trim().toLowerCase();
     if (!q) return;
 
-    const matches = memberCache.filter(x =>
+    const record = memberCache.find(x =>
         String(x.name || "").toLowerCase().includes(q)
     );
 
-    if (matches.length === 0) {
-        showAlert('검색 결과가 없습니다.', 'error');
-        closeSearchSuggest();
-        return;
-    }
-
-    if (matches.length === 1) {
+    if (record) {
         clearWarning();
-        fillFormData(matches[0]);
+        fillFormData(record);
         showAlert('회원 정보를 불러왔습니다.', 'success');
-        closeSearchSuggest();
-        return;
+    } else {
+        showAlert('검색 결과가 없습니다.', 'error');
     }
-
-    // 결과가 여러 개면 선택 드롭다운 표시
-    renderSearchSuggest(matches);
 }
-
-// ── 검색 자동완성 드롭다운 ──────────────────────────────────
-function renderSearchSuggest(matches) {
-    const box = document.getElementById('search-suggest');
-    const input = document.getElementById('search');
-    const rect = input.getBoundingClientRect();
-
-    box.style.top = (rect.bottom + 6) + 'px';
-    box.style.left = rect.left + 'px';
-    box.style.width = Math.max(rect.width, 260) + 'px';
-
-    window._searchSuggestResults = matches;
-    box.innerHTML = matches.slice(0, 30).map((m, idx) => {
-        return `
-            <div class="search-suggest-item" onclick="selectSearchSuggest(${idx})">
-                <span class="font-black text-slate-900 text-sm">${m.name || ''}</span>
-            </div>`;
-    }).join('');
-
-    if (matches.length > 30) {
-        box.innerHTML += `<div class="px-3 py-2 text-[10px] font-bold text-slate-400 text-center">그 외 ${matches.length - 30}명 더 있음 · 검색어를 더 입력하세요</div>`;
-    }
-
-    box.classList.add('show');
-}
-function closeSearchSuggest() {
-    document.getElementById('search-suggest').classList.remove('show');
-}
-function selectSearchSuggest(idx) {
-    const matches = window._searchSuggestResults;
-    if (!matches || idx < 0 || idx >= matches.length) return;
-    clearWarning();
-    fillFormData(matches[idx]);
-    showAlert(`${matches[idx].name} 교인 정보를 불러왔습니다.`, 'success');
-    closeSearchSuggest();
-    document.getElementById('search').value = '';
-}
-// ────────────────────────────────────────────────────────────
 
 function fillFormData(record) {
     document.querySelectorAll('[data-key]').forEach(el => {
@@ -2055,24 +1978,6 @@ document.querySelectorAll('[data-key="phone"]').forEach(el => {
 
 document.getElementById('search').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchData();
-});
-
-// 타이핑할 때마다 자동완성 갱신 (1글자 이상)
-document.getElementById('search').addEventListener('input', () => {
-    const q = document.getElementById('search').value.trim().toLowerCase();
-    if (!q) { closeSearchSuggest(); return; }
-    const matches = memberCache.filter(x =>
-        String(x.name || "").toLowerCase().includes(q)
-    );
-    if (matches.length === 0) { closeSearchSuggest(); return; }
-    renderSearchSuggest(matches);
-});
-
-// 외부 클릭 시 자동완성 닫기
-document.addEventListener('click', (e) => {
-    const box = document.getElementById('search-suggest');
-    const input = document.getElementById('search');
-    if (box && !box.contains(e.target) && e.target !== input) closeSearchSuggest();
 });
 
 // 저장 모달: 배경 클릭으로 닫기
