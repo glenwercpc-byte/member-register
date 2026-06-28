@@ -1318,12 +1318,9 @@ function renderSearchSuggest(matches) {
 
     window._searchSuggestResults = matches;
     box.innerHTML = matches.slice(0, 30).map((m, idx) => {
-        const posDisplay = String(m.position || '').trim() || '성도';
         return `
             <div class="search-suggest-item" onclick="selectSearchSuggest(${idx})">
                 <span class="font-black text-slate-900 text-sm">${m.name || ''}</span>
-                <span class="text-[10px] font-black text-slate-400 ml-1.5">#${m.id || ''}</span>
-                <span class="text-[10px] font-black text-indigo-400 ml-1.5">${posDisplay}</span>
             </div>`;
     }).join('');
 
