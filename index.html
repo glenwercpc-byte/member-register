@@ -543,8 +543,15 @@
                         <div class="flex items-center gap-3 flex-wrap">
                             <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">교인 통합 관리</h1>
                             <p id="current-time" class="text-slate-500 text-[11px] font-black font-mono bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm inline-block"></p>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                            <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
+                            <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                                시스템 로딩 중
+                            </span>
 
-                            <!-- 검색칸 + 검색 버튼: 시계 바로 옆 -->
+                            <!-- 검색칸 + 검색 버튼: 동기화 완료 배지 오른쪽 -->
                             <div class="flex gap-2 flex-shrink-0 ml-1">
                                 <div class="relative" style="width:10ch;">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -557,13 +564,6 @@
                                     <span class="btn-text">검색</span>
                                 </button>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-3 mt-1.5">
-                            <span onclick="resetForm(true)" class="text-[15px] font-black text-slate-950 uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">시카고 언약장로교회</span>
-                            <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-                                시스템 로딩 중
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -687,16 +687,8 @@
                             </div>
                         </div>
 
-                        <!-- 둘째 라인: 생년월일 / 세례일 / 이메일 / 상세주소 -->
+                        <!-- 둘째 라인: 이메일 / 상세주소 / 생년월일 / 세례일 -->
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                            <div class="md:col-span-2 space-y-1.5">
-                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">생년월일</label>
-                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="birthDate" placeholder="MM-DD-YYYY">
-                            </div>
-                            <div class="md:col-span-2 space-y-1.5">
-                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">세례일</label>
-                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="baptismDate" placeholder="MM-DD-YYYY">
-                            </div>
                             <div class="md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">이메일</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="email" placeholder="example@church.com">
@@ -705,17 +697,21 @@
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">상세 주소</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="address" placeholder="도로명 또는 지번 주소 입력">
                             </div>
+                            <div class="md:col-span-2 space-y-1.5">
+                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">생년월일</label>
+                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="birthDate" placeholder="MM-DD-YYYY">
+                            </div>
+                            <div class="md:col-span-2 space-y-1.5">
+                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">세례일</label>
+                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="baptismDate" placeholder="MM-DD-YYYY">
+                            </div>
                         </div>
 
-                        <!-- 셋째 라인: 교회등록일 ~ 해지사유 (모두 10자리) -->
+                        <!-- 셋째 라인: 교회등록일 / 소속샘터 / 집사,권사일자 / 장로일자 / 해지일 / 해지사유 -->
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 border-t border-slate-50">
                             <div class="md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">교회 등록일</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="registrationDate" placeholder="MM-DD-YYYY">
-                            </div>
-                            <div class="md:col-span-2 space-y-1.5">
-                                <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지일</label>
-                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 font-mono font-black text-sm" data-key="terminationDate" placeholder="MM-DD-YYYY">
                             </div>
                             <div class="md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">소속 샘터</label>
@@ -728,6 +724,10 @@
                             <div class="md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">장로 일자</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="elderDate" placeholder="MM-DD-YYYY">
+                            </div>
+                            <div class="md:col-span-2 space-y-1.5">
+                                <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지일</label>
+                                <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 font-mono font-black text-sm" data-key="terminationDate" placeholder="MM-DD-YYYY">
                             </div>
                             <div class="md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지 사유</label>
