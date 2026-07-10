@@ -554,7 +554,7 @@
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                 <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                             </div>
-                            <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="성명 검색">
+                            <input id="search" maxlength="10" class="w-full h-9 pl-9 pr-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-black placeholder:text-slate-400" placeholder="번호 또는 성명">
                         </div>
                         <button onclick="searchData()" id="search-btn" class="btn-primary bg-indigo-600 text-white px-4 h-9 rounded-xl font-black shadow-md hover:bg-indigo-700 whitespace-nowrap flex-shrink-0">
                             <span class="spinner"></span>
@@ -1255,6 +1255,7 @@ function searchData() {
     if (!q) return;
 
     const record = memberCache.find(x =>
+        String(x.id || "").toLowerCase() === q ||
         String(x.name || "").toLowerCase().includes(q)
     );
 
@@ -1271,8 +1272,16 @@ function fillFormData(record) {
     document.querySelectorAll('[data-key]').forEach(el => {
         let val = record[el.dataset.key] || "";
         if (el.dataset.key === 'cellGroup') {
-            // 구글 시트가 날짜로 변환한 경우(Date 객체나 날짜 문자열) 원래 값 그대로 표시
-            el.value = String(val);
+            const raw = String(val).trim();
+            // ISO 날짜 형식(2026-02-22T...) → 원래 M-DD 형식으로 복원
+            const isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+            if (isoMatch) {
+                const month = parseInt(isoMatch[2]); // 앞 0 제거
+                const day   = isoMatch[3];
+                el.value = `${month}-${day}`;
+            } else {
+                el.value = raw;
+            }
         } else if (el.dataset.key.includes('Date')) {
             el.value = formatToUI(val);
         } else {
