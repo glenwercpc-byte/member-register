@@ -542,7 +542,7 @@
                 <h1 onclick="resetForm(true)" class="text-xl font-black tracking-tight text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors" title="초기화">CCPC 교인 명부 관리</h1>
                 <span id="status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-600 transition-colors uppercase tracking-tight">
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-                    시스템 로딩 중
+                    연결중 입니다
                 </span>
             </div>
 
@@ -1041,14 +1041,30 @@ function unlockApp() {
 }
 
 // 데이터베이스 연동
-async function fetchDatabase() {
+async function fetchDatabase(retryCount = 0) {
     updateStatusBadge('syncing');
     try {
-        const response = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+        // 15초 타임아웃 설정 (Apps Script 콜드 스타트 대응)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(`${SCRIPT_URL}?t=${Date.now()}`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         memberCache = await response.json();
         updateStatusBadge('online');
     } catch (e) {
-        updateStatusBadge('offline');
+        if (e.name === 'AbortError' && retryCount < 2) {
+            // 타임아웃 시 최대 2회 재시도
+            console.warn(`연결 타임아웃, 재시도 ${retryCount + 1}/2...`);
+            setTimeout(() => fetchDatabase(retryCount + 1), 1000);
+        } else {
+            updateStatusBadge('offline');
+            showAlert('서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+        }
     }
 }
 
@@ -1057,12 +1073,12 @@ function updateStatusBadge(state) {
     const bar   = document.getElementById('sync-progress-bar');
     if (state === 'online') {
         badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-tight";
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 동기화 완료';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 연결 되었습니다';
         bar.classList.remove('running');
         bar.style.opacity = '0';
     } else if (state === 'syncing') {
         badge.className = "flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight overflow-hidden max-w-[160px]";
-        badge.innerHTML = '<span class="sync-slide-text">데이터 동기화 중</span>';
+        badge.innerHTML = '<span class="sync-slide-text">연결중 입니다</span>';
         // 프로그레스 바 재시작
         bar.classList.remove('running');
         bar.style.width = '0%';
