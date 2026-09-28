@@ -661,72 +661,72 @@
                 <div id="form-container" class="section-card p-6 sm:p-8 transition-all duration-300">
                     <div class="space-y-6">
                         <!-- 첫째 라인: 교인번호 / 성명 / 영문성함 / 직분 / 연락처 -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                            <div class="md:col-span-2 space-y-1.5">
+                        <div class="grid grid-cols-3 md:grid-cols-12 gap-4">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">교인 번호 <span class="text-rose-500">*</span></label>
                                 <input id="input-id" maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-indigo-600 text-sm uppercase" data-key="id" placeholder="00000" onfocus="clearWarning()">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">성명 <span class="text-rose-500">*</span></label>
                                 <input id="input-name" maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-sm text-slate-900" data-key="name" placeholder="홍길동">
                             </div>
-                            <div class="md:col-span-3 space-y-1.5">
+                            <div class="col-span-1 md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">영문 성함</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="engName" placeholder="Gildong Hong">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">직분</label>
                                 <input maxlength="5" class="input-field w-full px-4 rounded-xl bg-slate-50 font-black text-slate-700 text-sm" data-key="position" placeholder="성도 등">
                             </div>
-                            <div class="md:col-span-3 space-y-1.5">
+                            <div class="col-span-2 md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">연락처</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="phone" placeholder="000-000-0000" maxlength="12">
                             </div>
                         </div>
 
                         <!-- 둘째 라인: 상세주소 / 이메일 / 생년월일 / 세례일 -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                            <div class="md:col-span-5 space-y-1.5">
+                        <div class="grid grid-cols-2 md:grid-cols-12 gap-4">
+                            <div class="col-span-2 md:col-span-5 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">상세 주소</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="address" placeholder="도로명 또는 지번 주소 입력">
                             </div>
-                            <div class="md:col-span-3 space-y-1.5">
+                            <div class="col-span-2 md:col-span-3 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">이메일</label>
                                 <input class="input-field w-full px-4 rounded-xl bg-slate-50 text-sm font-black" data-key="email" placeholder="example@church.com">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">생년월일</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="birthDate" placeholder="MM-DD-YYYY">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">세례일</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="baptismDate" placeholder="MM-DD-YYYY">
                             </div>
                         </div>
 
                         <!-- 셋째 라인: 교회등록일 / 소속샘터 / 집사,권사일자 / 장로일자 / 해지일 / 해지사유 -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 border-t border-slate-50">
-                            <div class="md:col-span-2 space-y-1.5">
+                        <div class="grid grid-cols-2 md:grid-cols-12 gap-4 pt-4 border-t border-slate-50">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">교회 등록일</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="registrationDate" placeholder="MM-DD-YYYY">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">소속 샘터</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="cellGroup" placeholder="예: 2-22">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">집사,권사 일자</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="seniorDeaconessDate" placeholder="MM-DD-YYYY">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">장로 일자</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-slate-50 font-mono font-black text-sm" data-key="elderDate" placeholder="MM-DD-YYYY">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지일</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 font-mono font-black text-sm" data-key="terminationDate" placeholder="MM-DD-YYYY">
                             </div>
-                            <div class="md:col-span-2 space-y-1.5">
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
                                 <label class="text-[11px] font-black text-rose-500 uppercase tracking-wider ml-1">해지 사유</label>
                                 <input maxlength="10" class="input-field w-full px-4 rounded-xl bg-rose-50/30 border-rose-100 text-sm font-black" data-key="terminationReason" placeholder="이사 등">
                             </div>
